@@ -43,8 +43,8 @@ const Vendas = () => {
         canceled: 0
     })
 
-    // Debounce para o filtro de nome do cliente (2 segundos)
-    const debouncedClientName = useDebounce(filters.clientName, 2000)
+    // Debounce para o filtro de nome do cliente (meio segundo)
+    const debouncedClientName = useDebounce(filters.clientName, 500)
 
     // Tabs de status de pagamento com contadores fixos (não afetados pelos filtros)
     const paymentStatusTabs = [
@@ -282,16 +282,26 @@ const Vendas = () => {
     return (
         <div className="animate-fade-in">
             {/* Header da página */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-secondary-900">Vendas</h1>
-                <p className="mt-2 text-secondary-600">
-                    Gerencie todas as vendas do sistema
-                </p>
+            <div className="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-secondary-900">Vendas</h1>
+                    <p className="mt-2 text-secondary-600">
+                        Gerencie todas as vendas do sistema
+                    </p>
+                </div>
+                {/* Botão nova venda */}
+                <button
+                    className="btn-primary flex items-center space-x-2"
+                    onClick={handleNovaVenda}
+                >
+                    <PlusIcon className="w-5 h-5" />
+                    <span>Nova Venda</span>
+                </button>
             </div>
 
             {/* Filtros e ações */}
             <div className="bg-white rounded-xl shadow-soft border border-secondary-200 p-6 mb-6">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-end">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-end">
                     {/* Filtro por nome do cliente */}
                     <div>
                         <Input
@@ -324,16 +334,7 @@ const Vendas = () => {
                         </button>
                     </div>
 
-                    {/* Botão nova venda */}
-                    <div className="flex justify-end">
-                        <button
-                            className="btn-primary flex items-center space-x-2"
-                            onClick={handleNovaVenda}
-                        >
-                            <PlusIcon className="w-5 h-5" />
-                            <span>Nova Venda</span>
-                        </button>
-                    </div>
+
                 </div>
 
                 {/* Tabs de status de pagamento */}

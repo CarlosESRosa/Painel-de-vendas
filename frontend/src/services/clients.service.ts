@@ -1,0 +1,94 @@
+import { api } from './api'
+
+export interface CreateClientData {
+    name: string
+    cpf: string
+    email: string
+    phone: string
+    cep: string
+    city: string
+    neighborhood: string
+    street: string
+    number: string
+    state: string
+}
+
+export interface Client {
+    id: string
+    name: string
+    cpf: string
+    email: string
+    phone: string
+    cep: string
+    city: string
+    neighborhood: string
+    street: string
+    number: string
+    state: string
+    createdAt: string
+    updatedAt: string
+}
+
+export class ClientsService {
+    private static readonly CLIENTS_ENDPOINT = '/clients'
+
+    // Criar novo cliente
+    static async createClient(clientData: CreateClientData, token: string): Promise<Client> {
+        try {
+            // Remover máscaras dos campos formatados
+            const cleanData = {
+                ...clientData,
+                cpf: clientData.cpf.replace(/\D/g, ''),
+                phone: clientData.phone.replace(/\D/g, ''),
+                cep: clientData.cep.replace(/\D/g, '')
+            }
+
+            const response = await api.authPost<Client>(this.CLIENTS_ENDPOINT, token, cleanData)
+            return response
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error
+            }
+            throw new Error('Erro ao criar cliente')
+        }
+    }
+
+    // Buscar cliente por CPF
+    static async getClientByCPF(cpf: string, token: string): Promise<Client | null> {
+        try {
+            const cleanCPF = cpf.replace(/\D/g, '')
+            const response = await api.authGet<Client[]>(`${this.CLIENTS_ENDPOINT}?cpf=${cleanCPF}`, token)
+            return response.length > 0 ? response[0] : null
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error
+            }
+            throw new Error('Erro ao buscar cliente')
+        }
+    }
+
+    // Listar clientes
+    static async getClients(token: string, page = 1, perPage = 15): Promise<{
+        items: Client[]
+        page: number
+        perPage: number
+        total: number
+        totalPages: number
+    }> {
+        try {
+            const response = await api.authGet<{
+                items: Client[]
+                page: number
+                perPage: number
+                total: number
+                totalPages: number
+            }>(`${this.CLIENTS_ENDPOINT}?page=${page}&perPage=${perPage}`, token)
+            return response
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error
+            }
+            throw new Error('Erro ao listar clientes')
+        }
+    }
+}

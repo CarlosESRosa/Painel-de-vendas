@@ -34,9 +34,9 @@ export class SalesService {
     }
 
     // Criar nova venda
-    static async createSale(saleData: any, token: string) {
+    static async createSale(saleData: any, token: string): Promise<{ id: string }> {
         try {
-            const response = await api.authPost(this.SALES_ENDPOINT, token, saleData)
+            const response = await api.authPost<{ id: string }>(this.SALES_ENDPOINT, token, saleData)
             return response
         } catch (error) {
             if (error instanceof Error) {

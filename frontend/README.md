@@ -128,6 +128,33 @@
 ### Hooks Personalizados
 - **useDebounce**: Hook para implementar delay em filtros de texto
 
+### Tela de Nova Venda
+- **Fluxo de Estágios**: Sistema de 4 estágios para criação de vendas
+- **Estágio Cliente**: Formulário completo de cadastro de cliente
+- **Validação**: Validação em tempo real com formatação automática (CPF, telefone, CEP)
+- **Integração**: Criação automática de venda após cadastro do cliente
+- **Redirecionamento**: Navegação automática para edição da venda criada
+
+### Componentes de Estágio
+- **StageCard**: Componente visual para representar estágios da venda
+- **Estados Visuais**: 
+  - **Ativo**: Gradiente azul escuro (600-700) com ícone específico da etapa e indicador de progresso
+  - **Completo**: Gradiente verde escuro (600-700) com ícone específico da etapa e badge de check
+  - **Bloqueado**: Gradiente cinza escuro (600-700) com ícone específico da etapa e badge de cadeado
+- **Ícones**: Cada estágio mantém seu ícone representativo (usuário, sacola, cartão, documento) independente do status
+- **Layout**: Cards retangulares compactos (h-24) com layout horizontal ícone + texto
+- **Indicadores**: Badges flutuantes menores mostrando status (check, progresso, bloqueado)
+- **Contraste**: Fundos escuros para melhor legibilidade do texto branco
+- **Interatividade**: Hover effects apenas para estágios ativos (sem animação para bloqueados)
+- **Responsivo**: Layout adaptável para diferentes tamanhos de tela
+
+### Formulário de Cliente
+- **Dados Pessoais**: Nome, CPF, email, telefone
+- **Endereço Completo**: CEP, cidade, bairro, rua, número, estado
+- **Formatação Automática**: CPF (000.000.000-00), telefone ((00) 00000-0000), CEP (00000-000)
+- **Validação**: Campos obrigatórios, formato de email, CPF válido
+- **Tratamento de Erros**: Mensagens de erro específicas para cada campo
+
 ## 🗄️ Dados de Exemplo
 
 ### Seeds de Vendas
