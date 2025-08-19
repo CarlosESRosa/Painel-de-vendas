@@ -5,6 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Vendas from './pages/Vendas'
+import NovaVenda from './pages/NovaVenda'
+import EditarVenda from './pages/EditarVenda'
 import Clientes from './pages/Clientes'
 import Vendedores from './pages/Vendedores'
 
@@ -24,6 +26,8 @@ function AppRoutes() {
       >
         <Route index element={<Dashboard />} />
         <Route path="vendas" element={<Vendas />} />
+        <Route path="vendas/nova" element={<NovaVenda />} />
+        <Route path="vendas/editar/:id" element={<EditarVenda />} />
         <Route path="clientes" element={<Clientes />} />
         <Route path="vendedores" element={<Vendedores />} />
       </Route>

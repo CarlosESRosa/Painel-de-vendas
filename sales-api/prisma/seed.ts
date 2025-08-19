@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, PaymentStatus, PaymentMethod } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -35,7 +35,7 @@ async function main() {
     const passwordAdmin = await bcrypt.hash('admin123', 10);
     const passwordSeller = await bcrypt.hash('seller123', 10);
 
-    await prisma.user.upsert({
+    const adminUser = await prisma.user.upsert({
         where: { email: 'admin@painel.dev' },
         update: {},
         create: {
@@ -47,7 +47,7 @@ async function main() {
         },
     });
 
-    await prisma.user.upsert({
+    const sellerUser = await prisma.user.upsert({
         where: { email: 'vendedor@painel.dev' },
         update: {},
         create: {
@@ -93,12 +93,14 @@ async function main() {
         { name: 'Cadeira Gamer (para escritório)', sku: 'CHR-GMR-030', price: '1399.90' },
     ];
 
+    const products: any[] = [];
     for (const p of PRODUCTS_SEED) {
-        await prisma.product.upsert({
+        const product = await prisma.product.upsert({
             where: { sku: p.sku },
             update: {},
             create: { name: p.name, sku: p.sku, price: p.price },
         });
+        products.push(product);
     }
 
     // ---- CLIENTS ----
@@ -126,9 +128,10 @@ async function main() {
         { name: 'Lorena Farias', base: '753486159', email: 'lorena.farias@example.com', phone: '(27) 98800-7788', cep: '29101-970', city: 'Vila Velha', neighborhood: 'Praia da Costa', street: 'Av. Antônio Gil Veloso', number: '10', state: 'ES' },
     ];
 
+    const clients: any[] = [];
     for (const c of clientBases) {
         const cpf = cpfFromNineDigits(c.base); // 11 dígitos válidos
-        await prisma.client.upsert({
+        const client = await prisma.client.upsert({
             where: { cpf }, // seu schema tem cpf @unique
             update: {},
             create: {
@@ -144,9 +147,314 @@ async function main() {
                 state: c.state,
             },
         });
+        clients.push(client);
     }
 
-    console.log('Seed concluído (users + products + clients)');
+    // ---- SALES ----
+    const SALES_SEED = [
+        // Vendas PAGAS (PAID) - 15 vendas
+        {
+            clientName: 'João Silva',
+            productNames: ['Monitor 27" IPS 75Hz', 'Teclado Mecânico ABNT2'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-15',
+            notes: 'Cliente solicitou entrega rápida'
+        },
+        {
+            clientName: 'Maria Oliveira',
+            productNames: ['Cadeira Ergonômica Mesh', 'Mesa Office 1,40m'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-16',
+            notes: 'Montagem incluída'
+        },
+        {
+            clientName: 'Carlos Pereira',
+            productNames: ['Impressora Laser Mono', 'Nobreak 1200VA'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-17',
+            notes: 'Instalação de drivers incluída'
+        },
+        {
+            clientName: 'Ana Costa',
+            productNames: ['Projetor 3500 lumens', 'Tela Retrátil 100"'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-18',
+            notes: 'Para sala de reuniões'
+        },
+        {
+            clientName: 'Pedro Santos',
+            productNames: ['Kit Teclado + Mouse Sem Fio', 'Headset USB com Microfone'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-19',
+            notes: 'Home office'
+        },
+        {
+            clientName: 'Luiza Martins',
+            productNames: ['Cadeira Gamer (para escritório)', 'Suporte Monitor Articulado'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-20',
+            notes: 'Setup gamer profissional'
+        },
+        {
+            clientName: 'Rafael Souza',
+            productNames: ['Monitor 24" Full HD', 'Mouse Ergonômico Vertical'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-21',
+            notes: 'Para desenvolvedor'
+        },
+        {
+            clientName: 'Fernanda Rocha',
+            productNames: ['Docking Station USB-C', 'Hub USB 3.0 4 Portas'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-22',
+            notes: 'Setup para notebook'
+        },
+        {
+            clientName: 'Bruno Lima',
+            productNames: ['Mesa Ajustável (Standing Desk)', 'Gaveteiro 3 gavetas'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-23',
+            notes: 'Escritório moderno'
+        },
+        {
+            clientName: 'Patrícia Alves',
+            productNames: ['Webcam 1080p 30fps', 'Base Notebook com Cooler'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-24',
+            notes: 'Para reuniões online'
+        },
+        {
+            clientName: 'Gustavo Nunes',
+            productNames: ['Roteador AC1200 Dual Band', 'Switch 8 Portas Gigabit'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-25',
+            notes: 'Infraestrutura de rede'
+        },
+        {
+            clientName: 'Aline Ribeiro',
+            productNames: ['Monitor 27" IPS 75Hz', 'Teclado Sem Fio Slim'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-26',
+            notes: 'Setup limpo e minimalista'
+        },
+        {
+            clientName: 'Ricardo Prado',
+            productNames: ['Multifuncional Jato de Tinta', 'Fragmentadora de Papel'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-27',
+            notes: 'Para pequeno escritório'
+        },
+        {
+            clientName: 'Camila Duarte',
+            productNames: ['Cadeira Presidente Couro PU', 'Quadro Branco 120x90'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-28',
+            notes: 'Sala executiva'
+        },
+        {
+            clientName: 'Rodrigo Teixeira',
+            productNames: ['Etiquetadora Portátil', 'Filtro de Linha 6 Tomadas'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PAID' as PaymentStatus,
+            date: '2025-01-29',
+            notes: 'Para organização de estoque'
+        },
+
+        // Vendas PENDENTES (PENDING) - 10 vendas
+        {
+            clientName: 'Beatriz Mendes',
+            productNames: ['Monitor 24" Full HD', 'Mouse Óptico 1600 DPI'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-01-30',
+            notes: 'Aguardando aprovação do cartão'
+        },
+        {
+            clientName: 'Marcos Vinícius',
+            productNames: ['Teclado Mecânico ABNT2', 'Headset USB com Microfone'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-01-31',
+            notes: 'Transferência em processamento'
+        },
+        {
+            clientName: 'Juliana Barros',
+            productNames: ['Cadeira Ergonômica Mesh'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-01',
+            notes: 'PIX não confirmado'
+        },
+        {
+            clientName: 'Felipe Araújo',
+            productNames: ['Mesa Office 1,40m', 'Gaveteiro 3 gavetas'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-02',
+            notes: 'Cartão com limite insuficiente'
+        },
+        {
+            clientName: 'Lorena Farias',
+            productNames: ['Docking Station USB-C', 'Hub USB 3.0 4 Portas'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-03',
+            notes: 'Aguardando confirmação bancária'
+        },
+        {
+            clientName: 'João Silva',
+            productNames: ['Nobreak 1200VA', 'Filtro de Linha 6 Tomadas'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-04',
+            notes: 'Segunda compra do cliente'
+        },
+        {
+            clientName: 'Maria Oliveira',
+            productNames: ['Suporte Monitor Articulado', 'Base Notebook com Cooler'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-05',
+            notes: 'Acessórios para setup existente'
+        },
+        {
+            clientName: 'Carlos Pereira',
+            productNames: ['Roteador AC1200 Dual Band'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-06',
+            notes: 'Upgrade de rede residencial'
+        },
+        {
+            clientName: 'Ana Costa',
+            productNames: ['Webcam 1080p 30fps', 'Headset USB com Microfone'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-07',
+            notes: 'Para trabalho remoto'
+        },
+        {
+            clientName: 'Pedro Santos',
+            productNames: ['Impressora Laser Mono'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'PENDING' as PaymentStatus,
+            date: '2025-02-08',
+            notes: 'Para pequena empresa'
+        },
+
+        // Vendas CANCELADAS (CANCELLED) - 5 vendas
+        {
+            clientName: 'Luiza Martins',
+            productNames: ['Projetor 3500 lumens'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'CANCELED' as PaymentStatus,
+            date: '2025-02-09',
+            notes: 'Cliente desistiu - preço alto'
+        },
+        {
+            clientName: 'Rafael Souza',
+            productNames: ['Cadeira Gamer (para escritório)', 'Mesa Ajustável (Standing Desk)'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'CANCELED' as PaymentStatus,
+            date: '2025-02-10',
+            notes: 'Cancelado por falta de estoque'
+        },
+        {
+            clientName: 'Fernanda Rocha',
+            productNames: ['Monitor 27" IPS 75Hz', 'Teclado Mecânico ABNT2'],
+            paymentMethod: 'BOLETO' as PaymentMethod,
+            paymentStatus: 'CANCELED' as PaymentStatus,
+            date: '2025-02-11',
+            notes: 'Cliente mudou de ideia'
+        },
+        {
+            clientName: 'Bruno Lima',
+            productNames: ['Tela Retrátil 100"', 'Quadro Branco 120x90'],
+            paymentMethod: 'CARTAO' as PaymentMethod,
+            paymentStatus: 'CANCELED' as PaymentStatus,
+            date: '2025-02-12',
+            notes: 'Cancelado - sala não ficou pronta'
+        },
+        {
+            clientName: 'Patrícia Alves',
+            productNames: ['Fragmentadora de Papel', 'Etiquetadora Portátil'],
+            paymentMethod: 'PIX' as PaymentMethod,
+            paymentStatus: 'CANCELED' as PaymentStatus,
+            date: '2025-02-13',
+            notes: 'Empresa fechou antes da entrega'
+        }
+    ];
+
+    // Criar vendas
+    for (const saleData of SALES_SEED) {
+        const client = clients.find(c => c.name === saleData.clientName);
+        if (!client) continue;
+
+        // Calcular valor total da venda
+        let totalValue = 0;
+        const saleItems: any[] = [];
+
+        for (const productName of saleData.productNames) {
+            const product = products.find(p => p.name === productName);
+            if (product) {
+                totalValue += parseFloat(product.price.toString());
+                saleItems.push({
+                    productId: product.id,
+                    quantity: 1,
+                    unitPrice: product.price.toString(),
+                    subtotal: product.price.toString()
+                });
+            }
+        }
+
+        if (saleItems.length === 0) continue;
+
+        // Calcular comissão (5% do valor total)
+        const commissionValue = totalValue * 0.05;
+
+        // Determinar data de pagamento baseada no status
+        let paymentDate: Date | null = null;
+        if (saleData.paymentStatus === 'PAID') {
+            paymentDate = new Date(saleData.date);
+        }
+
+        // Criar a venda
+        const sale = await prisma.sale.create({
+            data: {
+                date: new Date(saleData.date),
+                notes: saleData.notes,
+                totalValue: totalValue.toFixed(2),
+                paymentStatus: saleData.paymentStatus,
+                paymentMethod: saleData.paymentMethod,
+                paymentDate: paymentDate,
+                commissionPercentSnapshot: '0.0500',
+                commissionValue: commissionValue.toFixed(2),
+                sellerId: Math.random() > 0.5 ? adminUser.id : sellerUser.id, // Alternar entre vendedores
+                clientId: client.id,
+                items: {
+                    create: saleItems
+                }
+            }
+        });
+
+        console.log(`Venda criada: ${saleData.clientName} - ${saleData.productNames.join(', ')} - ${saleData.paymentStatus}`);
+    }
+
+    console.log('Seed concluído (users + products + clients + sales)');
 }
 
 main()

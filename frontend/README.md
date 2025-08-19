@@ -1,106 +1,208 @@
 # Frontend - Painel de Vendas
 
-Este é o frontend do sistema de Painel de Vendas, desenvolvido com React, TypeScript, Vite, Tailwind CSS e Heroicons.
-
 ## 🚀 Tecnologias Utilizadas
 
 - **React 18** com TypeScript
 - **Vite** para build e desenvolvimento
-- **Tailwind CSS 3.4** (versão LTS) para estilização
+- **Tailwind CSS 3.4 LTS** para estilização
+- **React Router** para navegação
 - **Heroicons** para ícones
-- **Inter** como fonte principal
+- **Axios** para requisições HTTP (preparado para instalação)
 
 ## 🎨 Paleta de Cores
 
-O projeto utiliza uma paleta de cores personalizada e consistente:
-
 ### Cores Principais
-- **Primary (Azul)**: `primary-50` a `primary-950` - Para ações principais, botões e destaque
-- **Secondary (Cinza)**: `secondary-50` a `secondary-950` - Para textos, bordas e fundos
-- **Accent (Rosa)**: `accent-50` a `accent-950` - Para elementos de destaque e call-to-actions
+- **Primary**: Azul tecnológico (#3B82F6, #1D4ED8, #1E40AF)
+- **Secondary**: Cinza moderno (#6B7280, #374151, #1F2937)
+- **Success**: Verde tecnológico (#10B981, #059669, #047857)
+- **Warning**: Laranja vibrante (#F59E0B, #D97706, #B45309)
+- **Danger**: Vermelho moderno (#EF4444, #DC2626, #B91C1C)
+- **Info**: Roxo tecnológico (#8B5CF6, #7C3AED, #6D28D9)
 
-### Cores Semânticas
-- **Success (Verde)**: `success-50` a `success-950` - Para sucessos e confirmações
-- **Warning (Amarelo)**: `warning-50` a `warning-950` - Para avisos e alertas
-- **Danger (Vermelho)**: `danger-50` a `danger-950` - Para erros e ações perigosas
+### Gradientes
+- **gradient-primary**: `from-primary-500 to-primary-600`
+- **gradient-accent**: `from-accent-500 to-accent-600`
+- **gradient-tech**: `from-secondary-800 to-primary-600`
 
 ## 🧩 Componentes e Classes Utilitárias
 
-### 🎨 Botões
-- `.btn-primary` - Botão primário com efeito glow
-- `.btn-secondary` - Botão secundário com sombra tech
-- `.btn-ghost` - Botão transparente para navegação
-- `.btn-accent` - Botão de destaque laranja
+### Botões
+- `.btn-primary`: Botão principal azul
+- `.btn-secondary`: Botão secundário cinza
+- `.btn-ghost`: Botão transparente
+- `.btn-accent`: Botão de destaque laranja
 
-### 📱 Cards e Containers
-- `.card` - Container padrão com sombra suave
-- `.card-tech` - Container tecnológico com borda azul
-- `.glass-card` - Card com efeito glassmorphism
+### Cards
+- `.card`: Card padrão com sombra suave
+- `.card-tech`: Card com borda tecnológica
+- `.glass-card`: Card com efeito glassmorphism
 
-### 🔍 Campos de Input
-- `.input-field` - Campo com sombra interna e foco tech
-- `.input-field:focus` - Estado de foco com sombra tech
+### Inputs
+- `.input-field`: Campo de entrada padrão
+- Componente `Input` reutilizável com variantes
 
-### 🧭 Navegação
-- `.nav-link` - Link de navegação padrão
-- `.nav-link-active` - Link de navegação ativo
+### Navegação
+- `.nav-link`: Link de navegação
+- `.nav-link-active`: Link ativo
+- Componente `Tabs` com variantes (default, pills, underline)
 
-### 🏷️ Badges
-- `.badge-primary`, `.badge-success`, `.badge-warning`, `.badge-danger`, `.badge-info`
+### Tabelas
+- Componente `Table` reutilizável com loading e estados vazios
+- Hover com contraste aprimorado (bg-primary-50)
 
-### ✨ Animações
-- `.animate-fade-in` - Fade in suave
-- `.animate-slide-up` - Slide up para menus
-- `.animate-pulse-glow` - Pulsar com glow
+### Paginação
+- Componente `Pagination` com navegação e seletor de itens por página
 
-### 🌈 Gradientes
-- `.gradient-primary` - Gradiente azul
-- `.gradient-accent` - Gradiente laranja
-- `.gradient-tech` - Gradiente tecnológico multicolor
+### Badges
+- `.badge`: Badge padrão
+- `.badge-primary`, `.badge-success`, `.badge-warning`, `.badge-danger`
+
+### Animações
+- `.animate-fade-in`: Fade in suave
+- `.animate-slide-up`: Slide up com fade
+- `.animate-pulse-glow`: Pulsação com brilho
 
 ## 🧭 Sistema de Navegação
 
-### 📱 Header Responsivo
-- **Logo**: Carrinho de compras com gradiente + nome "Painel de Vendas"
-- **Navegação Desktop**: Links Dashboard, Vendas, Clientes, Vendedores
-- **Navegação Mobile**: Menu hambúrguer com animações
-- **Perfil**: Informações do usuário logado + botão de logout
-- **Fixado**: Header sempre visível no topo
-- **Responsivo**: Se adapta a todos os tamanhos de tela
-
-### 🔐 Sistema de Autenticação
-- **Tela de Login**: Design moderno com validação
-- **Contexto de Auth**: Gerenciamento de estado do usuário
-- **Rotas Protegidas**: Acesso restrito apenas para usuários autenticados
-- **Login Demo**: Acesso rápido para demonstração
-- **Persistência**: Dados do usuário salvos no localStorage
-- **Integração com API**: Conexão real com backend NestJS
-- **Validação de Token**: Verificação automática de expiração
-- **Tratamento de Erros**: Mensagens específicas da API
-
-### 🛣️ Rotas Disponíveis
-- `/login` - Tela de login (pública)
+### Rotas Disponíveis
 - `/` - Dashboard (protegida)
-- `/vendas` - Página de Vendas (protegida)
-- `/clientes` - Página de Clientes (protegida)
-- `/vendedores` - Página de Vendedores (protegida)
+- `/login` - Tela de login
+- `/vendas` - Lista de vendas (protegida)
+- `/vendas/nova` - Nova venda (protegida)
+- `/vendas/editar/:id` - Editar venda (protegida)
+- `/clientes` - Lista de clientes (protegida)
+- `/vendedores` - Lista de vendedores (protegida)
 
-## 📱 Funcionalidades da Tela de Teste
+### Componente Layout
+- Header fixo com navegação responsiva
+- Sidebar colapsível para dispositivos móveis
+- Área de conteúdo principal com `<Outlet />`
 
-A tela de teste demonstra:
+## 🔐 Sistema de Autenticação
 
-1. **Header** com logo, título e ações do usuário
-2. **Navegação** com abas interativas
-3. **Barra de busca** com ícone
-4. **Cards de estatísticas** com métricas e ícones
-5. **Lista de vendas recentes** com status e ícones
-6. **Demonstração da paleta de cores** completa
-7. **Botões de exemplo** com todas as variações
+### AuthContext
+- Gerenciamento de estado de autenticação
+- Login/logout com persistência em localStorage
+- Validação de token JWT
+- Proteção de rotas
+
+### Serviços de API
+- `AuthService`: Autenticação e perfil do usuário
+- `SalesService`: Operações CRUD de vendas
+- Base de API configurável com interceptors
+
+### Rotas Protegidas
+- `ProtectedRoute`: Componente que verifica autenticação
+- Redirecionamento automático para login
+
+## 📊 Funcionalidades
+
+### Tela de Vendas
+- Lista paginada de vendas com filtros inteligentes
+- **Filtros com Debounce**: Nome do cliente com delay de 2 segundos
+- **Filtros Instantâneos**: Data e status de pagamento
+- **Filtros Complementares**: Todos os filtros funcionam em conjunto
+- **Filtro por Nome**: Busca por nome do cliente usando LIKE (contém)
+- Tabs agrupados por status de pagamento com contadores fixos (não afetados pelos filtros)
+- Tabela responsiva com hover aprimorado e método de pagamento
+- Paginação com seletor de itens por página
+- Navegação para nova venda e edição
+- Botão para limpar todos os filtros
+- Indicador visual dos filtros ativos
+
+### Sistema de Filtros Inteligente
+- **Debounce de 2 segundos** para filtro de nome do cliente
+- **Aplicação instantânea** para filtros de data e status
+- **Filtros complementares** que funcionam em conjunto
+- **Filtro por nome**: Busca por nome do cliente usando parâmetro 'q' (LIKE)
+- **Contadores fixos**: Tabs mostram sempre o total real de cada status
+- **Reset automático** da paginação ao aplicar filtros
+- **Indicadores visuais** de quais filtros estão ativos
+
+### Componentes Reutilizáveis
+- **Input**: Campo de entrada com variantes e validação
+- **Tabs**: Navegação por abas com contadores e cores
+- **Table**: Tabela com loading, estados vazios e hover
+- **Pagination**: Navegação de páginas com informações
+
+### Hooks Personalizados
+- **useDebounce**: Hook para implementar delay em filtros de texto
+
+## 🗄️ Dados de Exemplo
+
+### Seeds de Vendas
+- **30 vendas realistas** com diferentes cenários
+- **15 vendas PAGAS** (PAID) com produtos variados
+- **10 vendas PENDENTES** (PENDING) aguardando confirmação
+- **5 vendas CANCELADAS** (CANCELLED) por diversos motivos
+- **Produtos realistas**: Monitores, periféricos, móveis, equipamentos
+- **Clientes variados**: 20 clientes com dados completos
+- **Vendedores**: Admin e Vendedor com comissões de 5%
+
+### Status de Pagamento
+- **PAID** → "Pago" (verde)
+- **PENDING** → "A receber" (laranja)
+- **CANCELED** → "Cancelado" (vermelho)
+
+### Métodos de Pagamento
+- **PIX** → "PIX"
+- **CARTAO** → "Cartão"
+- **DINHEIRO** → "Dinheiro"
+- **BOLETO** → "Boleto"
+
+## 🏗️ Estrutura do Projeto
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── ui/           # Componentes reutilizáveis
+│   │   │   ├── Input.tsx
+│   │   │   ├── Tabs.tsx
+│   │   │   ├── Table.tsx
+│   │   │   ├── Pagination.tsx
+│   │   │   └── index.ts
+│   │   ├── Header.tsx    # Header da aplicação
+│   │   ├── Layout.tsx    # Layout principal
+│   │   └── ProtectedRoute.tsx
+│   ├── contexts/
+│   │   └── AuthContext.tsx
+│   ├── hooks/
+│   │   └── useDebounce.ts # Hook para debounce
+│   ├── pages/
+│   │   ├── Login.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── Vendas.tsx
+│   │   ├── NovaVenda.tsx
+│   │   ├── EditarVenda.tsx
+│   │   ├── Clientes.tsx
+│   │   └── Vendedores.tsx
+│   ├── services/
+│   │   ├── api.ts        # Cliente HTTP base
+│   │   ├── api.axios.ts  # Implementação Axios
+│   │   ├── auth.service.ts
+│   │   └── sales.service.ts
+│   ├── types/
+│   │   ├── api.types.ts
+│   │   └── sales.types.ts
+│   ├── config/
+│   │   └── api.config.ts
+│   ├── App.tsx
+│   └── main.tsx
+├── tailwind.config.js
+└── package.json
+```
 
 ## 🚀 Como Executar
 
-### Instalação das Dependências
+### Pré-requisitos
+- Node.js 18+
+- npm ou yarn
+- Backend NestJS rodando na porta 3000
+
+### Instalação
 ```bash
+cd frontend
 npm install
 ```
 
@@ -109,95 +211,71 @@ npm install
 npm run dev
 ```
 
-### Build para Produção
+### Build
 ```bash
 npm run build
 ```
 
-### Preview do Build
-```bash
-npm run preview
-```
+## 📱 Responsividade
 
-## 📁 Estrutura do Projeto
-
-```
-frontend/
-├── src/
-│   ├── components/
-│   │   ├── Header.tsx        # Header responsivo com navegação
-│   │   ├── Layout.tsx        # Layout principal com Header
-│   │   └── ProtectedRoute.tsx # Componente de rota protegida
-│   ├── config/
-│   │   └── api.config.ts     # Configurações da API
-│   ├── contexts/
-│   │   └── AuthContext.tsx   # Contexto de autenticação
-│   ├── pages/
-│   │   ├── Login.tsx         # Tela de login
-│   │   ├── Dashboard.tsx     # Página Dashboard
-│   │   ├── Vendas.tsx        # Página Vendas
-│   │   ├── Clientes.tsx      # Página Clientes
-│   │   └── Vendedores.tsx    # Página Vendedores
-│   ├── services/
-│   │   ├── api.ts            # Cliente HTTP base
-│   │   └── auth.service.ts   # Serviço de autenticação
-│   ├── types/
-│   │   ├── index.ts          # Tipos TypeScript gerais
-│   │   └── api.types.ts      # Tipos da API
-│   ├── App.tsx               # App principal com roteamento
-│   ├── main.tsx              # Ponto de entrada da aplicação
-│   └── index.css             # Estilos globais e Tailwind
-├── tailwind.config.js        # Configuração do Tailwind CSS
-├── postcss.config.js         # Configuração do PostCSS
-├── package.json              # Dependências e scripts
-└── README.md                # Este arquivo
-```
+- Header colapsível para dispositivos móveis
+- Grid responsivo para filtros
+- Tabela com scroll horizontal em telas pequenas
+- Navegação adaptativa
 
 ## 🎯 Próximos Passos
 
-- [x] ✅ Configurar Tailwind CSS com paleta personalizada
-- [x] ✅ Criar Header responsivo
-- [x] ✅ Implementar navegação com React Router
-- [x] ✅ Criar páginas básicas
-- [x] ✅ Implementar sistema de autenticação
-- [x] ✅ Criar tela de login moderna
-- [ ] Conectar com a API backend
-- [ ] Adicionar testes unitários
-- [ ] Implementar tema escuro/claro
-- [ ] Adicionar gráficos e dashboards
-- [ ] Implementar CRUD completo
+### Funcionalidades Pendentes
+- [ ] Formulário completo de nova venda
+- [ ] Formulário de edição de venda
+- [ ] Modal de confirmação para exclusão
+- [ ] Filtros avançados (período de datas)
+- [ ] Exportação de dados
+- [ ] Dashboard com gráficos e métricas
+
+### Melhorias de UX
+- [ ] Loading states para ações
+- [ ] Toast notifications
+- [ ] Confirmações antes de ações destrutivas
+- [ ] Validação em tempo real
+- [ ] Auto-save em formulários
+
+### Integração com Backend
+- [ ] Migração completa para Axios
+- [ ] Tratamento de erros aprimorado
+- [ ] Cache de dados
+- [ ] Sincronização offline
 
 ## 🔧 Configurações
 
 ### Tailwind CSS
-- Configurado com paleta de cores personalizada
-- Fonte Inter como padrão
-- Sombras customizadas
-- Componentes utilitários
+- Configuração customizada com paleta de cores
+- Animações e transições personalizadas
+- Sombras e efeitos especiais
+- Fonte Inter para UI e JetBrains Mono para código
 
-### PostCSS
-- Autoprefixer para compatibilidade
-- Otimizações de CSS
+### API
+- Configuração base para desenvolvimento/produção
+- Headers padrão e interceptors
+- Timeout e retry configuráveis
+- Suporte a CORS e credenciais
 
-### Vite
-- Configuração otimizada para React + TypeScript
-- Hot Module Replacement (HMR)
-- Build otimizado para produção
+### TypeScript
+- Configuração estrita para melhor qualidade de código
+- Interfaces tipadas para todas as APIs
+- Props tipadas para todos os componentes
 
-### React Router
-- Navegação SPA com rotas aninhadas
-- Layout compartilhado entre páginas
-- Rotas protegidas com autenticação
-- Navegação programática
+## 🗃️ Backend Integration
 
-### 🔌 Integração com API
-- **Serviços HTTP**: Cliente fetch com interceptors
-- **Autenticação JWT**: Bearer token em headers
-- **Configuração Centralizada**: URLs e endpoints configuráveis
-- **Tratamento de Erros**: Mapeamento de erros da API
-- **Validação de Token**: Verificação automática de validade
-- **Tipos TypeScript**: Interfaces baseadas na API real
+### Seeds de Dados
+- Execute o seed do backend para criar dados de exemplo:
+```bash
+cd sales-api
+npx prisma db seed
+```
 
-## 📝 Licença
-
-Este projeto faz parte do sistema Painel de Vendas.
+### Estrutura de Vendas
+- Cada venda inclui produtos, cliente, vendedor e status
+- Cálculo automático de comissões (5%)
+- Histórico completo de pagamentos
+- Relacionamentos com clientes e produtos
