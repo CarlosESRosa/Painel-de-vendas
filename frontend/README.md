@@ -24,17 +24,66 @@ O projeto utiliza uma paleta de cores personalizada e consistente:
 - **Warning (Amarelo)**: `warning-50` a `warning-950` - Para avisos e alertas
 - **Danger (Vermelho)**: `danger-50` a `danger-950` - Para erros e ações perigosas
 
-## 🧩 Componentes
+## 🧩 Componentes e Classes Utilitárias
 
-### Classes Utilitárias
-- `.btn-primary` - Botão primário com estilo padrão
-- `.btn-secondary` - Botão secundário com estilo padrão
-- `.card` - Container de card com sombra e borda
-- `.input-field` - Campo de input com estilo padrão
+### 🎨 Botões
+- `.btn-primary` - Botão primário com efeito glow
+- `.btn-secondary` - Botão secundário com sombra tech
+- `.btn-ghost` - Botão transparente para navegação
+- `.btn-accent` - Botão de destaque laranja
 
-### Sombras
-- `.shadow-soft` - Sombra suave para cards e elementos
-- `.shadow-glow` - Sombra com brilho para elementos destacados
+### 📱 Cards e Containers
+- `.card` - Container padrão com sombra suave
+- `.card-tech` - Container tecnológico com borda azul
+- `.glass-card` - Card com efeito glassmorphism
+
+### 🔍 Campos de Input
+- `.input-field` - Campo com sombra interna e foco tech
+- `.input-field:focus` - Estado de foco com sombra tech
+
+### 🧭 Navegação
+- `.nav-link` - Link de navegação padrão
+- `.nav-link-active` - Link de navegação ativo
+
+### 🏷️ Badges
+- `.badge-primary`, `.badge-success`, `.badge-warning`, `.badge-danger`, `.badge-info`
+
+### ✨ Animações
+- `.animate-fade-in` - Fade in suave
+- `.animate-slide-up` - Slide up para menus
+- `.animate-pulse-glow` - Pulsar com glow
+
+### 🌈 Gradientes
+- `.gradient-primary` - Gradiente azul
+- `.gradient-accent` - Gradiente laranja
+- `.gradient-tech` - Gradiente tecnológico multicolor
+
+## 🧭 Sistema de Navegação
+
+### 📱 Header Responsivo
+- **Logo**: Carrinho de compras com gradiente + nome "Painel de Vendas"
+- **Navegação Desktop**: Links Dashboard, Vendas, Clientes, Vendedores
+- **Navegação Mobile**: Menu hambúrguer com animações
+- **Perfil**: Informações do usuário logado + botão de logout
+- **Fixado**: Header sempre visível no topo
+- **Responsivo**: Se adapta a todos os tamanhos de tela
+
+### 🔐 Sistema de Autenticação
+- **Tela de Login**: Design moderno com validação
+- **Contexto de Auth**: Gerenciamento de estado do usuário
+- **Rotas Protegidas**: Acesso restrito apenas para usuários autenticados
+- **Login Demo**: Acesso rápido para demonstração
+- **Persistência**: Dados do usuário salvos no localStorage
+- **Integração com API**: Conexão real com backend NestJS
+- **Validação de Token**: Verificação automática de expiração
+- **Tratamento de Erros**: Mensagens específicas da API
+
+### 🛣️ Rotas Disponíveis
+- `/login` - Tela de login (pública)
+- `/` - Dashboard (protegida)
+- `/vendas` - Página de Vendas (protegida)
+- `/clientes` - Página de Clientes (protegida)
+- `/vendedores` - Página de Vendedores (protegida)
 
 ## 📱 Funcionalidades da Tela de Teste
 
@@ -75,23 +124,48 @@ npm run preview
 ```
 frontend/
 ├── src/
-│   ├── App.tsx          # Componente principal com tela de teste
-│   ├── main.tsx         # Ponto de entrada da aplicação
-│   └── index.css        # Estilos globais e configuração do Tailwind
-├── tailwind.config.js   # Configuração do Tailwind CSS
-├── postcss.config.js    # Configuração do PostCSS
-├── package.json         # Dependências e scripts
-└── README.md           # Este arquivo
+│   ├── components/
+│   │   ├── Header.tsx        # Header responsivo com navegação
+│   │   ├── Layout.tsx        # Layout principal com Header
+│   │   └── ProtectedRoute.tsx # Componente de rota protegida
+│   ├── config/
+│   │   └── api.config.ts     # Configurações da API
+│   ├── contexts/
+│   │   └── AuthContext.tsx   # Contexto de autenticação
+│   ├── pages/
+│   │   ├── Login.tsx         # Tela de login
+│   │   ├── Dashboard.tsx     # Página Dashboard
+│   │   ├── Vendas.tsx        # Página Vendas
+│   │   ├── Clientes.tsx      # Página Clientes
+│   │   └── Vendedores.tsx    # Página Vendedores
+│   ├── services/
+│   │   ├── api.ts            # Cliente HTTP base
+│   │   └── auth.service.ts   # Serviço de autenticação
+│   ├── types/
+│   │   ├── index.ts          # Tipos TypeScript gerais
+│   │   └── api.types.ts      # Tipos da API
+│   ├── App.tsx               # App principal com roteamento
+│   ├── main.tsx              # Ponto de entrada da aplicação
+│   └── index.css             # Estilos globais e Tailwind
+├── tailwind.config.js        # Configuração do Tailwind CSS
+├── postcss.config.js         # Configuração do PostCSS
+├── package.json              # Dependências e scripts
+└── README.md                # Este arquivo
 ```
 
 ## 🎯 Próximos Passos
 
-- [ ] Implementar roteamento com React Router
-- [ ] Criar componentes reutilizáveis
-- [ ] Implementar autenticação
+- [x] ✅ Configurar Tailwind CSS com paleta personalizada
+- [x] ✅ Criar Header responsivo
+- [x] ✅ Implementar navegação com React Router
+- [x] ✅ Criar páginas básicas
+- [x] ✅ Implementar sistema de autenticação
+- [x] ✅ Criar tela de login moderna
 - [ ] Conectar com a API backend
 - [ ] Adicionar testes unitários
 - [ ] Implementar tema escuro/claro
+- [ ] Adicionar gráficos e dashboards
+- [ ] Implementar CRUD completo
 
 ## 🔧 Configurações
 
@@ -109,6 +183,20 @@ frontend/
 - Configuração otimizada para React + TypeScript
 - Hot Module Replacement (HMR)
 - Build otimizado para produção
+
+### React Router
+- Navegação SPA com rotas aninhadas
+- Layout compartilhado entre páginas
+- Rotas protegidas com autenticação
+- Navegação programática
+
+### 🔌 Integração com API
+- **Serviços HTTP**: Cliente fetch com interceptors
+- **Autenticação JWT**: Bearer token em headers
+- **Configuração Centralizada**: URLs e endpoints configuráveis
+- **Tratamento de Erros**: Mapeamento de erros da API
+- **Validação de Token**: Verificação automática de validade
+- **Tipos TypeScript**: Interfaces baseadas na API real
 
 ## 📝 Licença
 

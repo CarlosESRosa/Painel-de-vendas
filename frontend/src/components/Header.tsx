@@ -4,12 +4,15 @@ import {
     ShoppingCartIcon,
     UserIcon,
     Bars3Icon,
-    XMarkIcon
+    XMarkIcon,
+    ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
+import { useAuth } from '../contexts/AuthContext'
 
 const Header = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const location = useLocation()
+    const { user, logout } = useAuth()
 
     const navigation = [
         { name: 'Dashboard', href: '/', icon: '📊' },
@@ -58,9 +61,24 @@ const Header = () => {
 
                     {/* Right side - Profile & Mobile menu button */}
                     <div className="flex items-center space-x-4">
-                        {/* Profile Icon */}
-                        <button className="p-2 text-secondary-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                            <UserIcon className="w-6 h-6" />
+                        {/* User Info */}
+                        <div className="hidden md:flex items-center space-x-3">
+                            <div className="text-right">
+                                <p className="text-sm font-medium text-secondary-900">{user?.name || 'Usuário'}</p>
+                                <p className="text-xs text-secondary-500">{user?.email || 'user@example.com'}</p>
+                            </div>
+                            <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                                <UserIcon className="w-5 h-5 text-primary-600" />
+                            </div>
+                        </div>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={logout}
+                            className="p-2 text-secondary-600 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-danger-500 focus:ring-offset-2"
+                            title="Sair"
+                        >
+                            <ArrowRightOnRectangleIcon className="w-6 h-6" />
                         </button>
 
                         {/* Mobile menu button */}
