@@ -39,13 +39,37 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
         setTempRange(value)
     }, [value])
 
+    // Função auxiliar para criar datas com precisão - usando local date strings para evitar timezone issues
+    const createDateRange = (startDate: Date, endDate: Date) => {
+        // Garantir que as datas sejam criadas corretamente
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+
+        // Definir horários para evitar problemas de fuso horário
+        start.setHours(0, 0, 0, 0)
+        end.setHours(23, 59, 59, 999)
+
+        // Usar toLocaleDateString para criar strings de data locais (YYYY-MM-DD)
+        const formatDate = (date: Date) => {
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            return `${year}-${month}-${day}`
+        }
+
+        return {
+            start: formatDate(start),
+            end: formatDate(end)
+        }
+    }
+
     // Opções de data rápida
     const quickDateOptions = [
         {
             label: 'HOJE',
             getRange: () => {
                 const today = new Date()
-                const dateStr = today.toISOString().split('T')[0]
+                const dateStr = today.toLocaleDateString('en-CA') // Formato YYYY-MM-DD
                 return { start: dateStr, end: dateStr }
             }
         },
@@ -53,54 +77,62 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
             label: 'ESSA SEMANA',
             getRange: () => {
                 const today = new Date()
+                // Domingo = 0, Segunda = 1, ..., Sábado = 6
+                const dayOfWeek = today.getDay()
                 const startOfWeek = new Date(today)
-                startOfWeek.setDate(today.getDate() - today.getDay())
+                startOfWeek.setDate(today.getDate() - dayOfWeek)
+
                 const endOfWeek = new Date(startOfWeek)
                 endOfWeek.setDate(startOfWeek.getDate() + 6)
 
-                return {
-                    start: startOfWeek.toISOString().split('T')[0],
-                    end: endOfWeek.toISOString().split('T')[0]
-                }
+                return createDateRange(startOfWeek, endOfWeek)
             }
         },
         {
             label: 'ESSE MÊS',
             getRange: () => {
                 const today = new Date()
-                const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-                const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+                const currentYear = today.getFullYear()
+                const currentMonth = today.getMonth()
 
-                return {
-                    start: startOfMonth.toISOString().split('T')[0],
-                    end: endOfMonth.toISOString().split('T')[0]
-                }
+                // Primeiro dia do mês atual (1º do mês)
+                const startOfMonth = new Date(currentYear, currentMonth, 1)
+
+                // Último dia do mês atual (último dia do mês)
+                const endOfMonth = new Date(currentYear, currentMonth + 1, 0)
+
+                return createDateRange(startOfMonth, endOfMonth)
             }
         },
         {
             label: 'MÊS PASSADO',
             getRange: () => {
                 const today = new Date()
-                const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-                const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0)
+                const currentYear = today.getFullYear()
+                const currentMonth = today.getMonth()
 
-                return {
-                    start: startOfLastMonth.toISOString().split('T')[0],
-                    end: endOfLastMonth.toISOString().split('T')[0]
-                }
+                // Primeiro dia do mês passado
+                const startOfLastMonth = new Date(currentYear, currentMonth - 1, 1)
+
+                // Último dia do mês passado
+                const endOfLastMonth = new Date(currentYear, currentMonth, 0)
+
+                return createDateRange(startOfLastMonth, endOfLastMonth)
             }
         },
         {
             label: 'ESSE ANO',
             getRange: () => {
                 const today = new Date()
-                const startOfYear = new Date(today.getFullYear(), 0, 1)
-                const endOfYear = new Date(today.getFullYear(), 11, 31)
+                const currentYear = today.getFullYear()
 
-                return {
-                    start: startOfYear.toISOString().split('T')[0],
-                    end: endOfYear.toISOString().split('T')[0]
-                }
+                // Primeiro dia do ano
+                const startOfYear = new Date(currentYear, 0, 1)
+
+                // Último dia do ano
+                const endOfYear = new Date(currentYear, 11, 31)
+
+                return createDateRange(startOfYear, endOfYear)
             }
         }
     ]
@@ -147,16 +179,23 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
     }
 
     const handleDateClick = (date: Date) => {
-        if (!tempRange) {
-            const dateStr = date.toISOString().split('T')[0]
-            setTempRange({ start: dateStr, end: dateStr })
-        } else if (!tempRange.end || tempRange.start === tempRange.end) {
-            const dateStr = date.toISOString().split('T')[0]
-            const newRange = { start: tempRange.start, end: dateStr }
+        // Usar toLocaleDateString para criar string de data local (YYYY-MM-DD)
+        const dateStr = date.toLocaleDateString('en-CA')
 
-            // Garantir que start seja menor que end
-            if (newRange.start > newRange.end) {
-                [newRange.start, newRange.end] = [newRange.end, newRange.start]
+        if (!tempRange) {
+            // Primeira seleção - definir início e fim como a mesma data
+            const newRange = { start: dateStr, end: dateStr }
+            setTempRange(newRange)
+        } else if (tempRange.start === tempRange.end) {
+            // Segunda seleção - criar o intervalo
+            let newRange: { start: string; end: string }
+
+            if (dateStr < tempRange.start) {
+                // Data selecionada é anterior ao início
+                newRange = { start: dateStr, end: tempRange.start }
+            } else {
+                // Data selecionada é posterior ao início
+                newRange = { start: tempRange.start, end: dateStr }
             }
 
             setTempRange(newRange)
@@ -164,7 +203,7 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
             onChange(newRange)
             setIsOpen(false)
         } else {
-            const dateStr = date.toISOString().split('T')[0]
+            // Nova seleção - resetar para uma nova data
             setTempRange({ start: dateStr, end: dateStr })
         }
     }
@@ -183,19 +222,19 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
 
     const isDateInRange = (date: Date) => {
         if (!tempRange) return false
-        const dateStr = date.toISOString().split('T')[0]
+        const dateStr = date.toLocaleDateString('en-CA')
         return dateStr >= tempRange.start && dateStr <= tempRange.end
     }
 
     const isDateStart = (date: Date) => {
         if (!tempRange) return false
-        const dateStr = date.toISOString().split('T')[0]
+        const dateStr = date.toLocaleDateString('en-CA')
         return dateStr === tempRange.start
     }
 
     const isDateEnd = (date: Date) => {
         if (!tempRange) return false
-        const dateStr = date.toISOString().split('T')[0]
+        const dateStr = date.toLocaleDateString('en-CA')
         return dateStr === tempRange.end
     }
 
@@ -203,10 +242,21 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
         if (!selectedRange) return placeholder || 'Selecione uma data'
 
         if (selectedRange.start === selectedRange.end) {
-            return new Date(selectedRange.start).toLocaleDateString('pt-BR')
+            // Converter string YYYY-MM-DD para Date e formatar para pt-BR
+            const date = new Date(selectedRange.start + 'T00:00:00')
+            return date.toLocaleDateString('pt-BR')
         }
 
-        return `${new Date(selectedRange.start).toLocaleDateString('pt-BR')} - ${new Date(selectedRange.end).toLocaleDateString('pt-BR')}`
+        // Converter strings YYYY-MM-DD para Date e formatar para pt-BR
+        const startDate = new Date(selectedRange.start + 'T00:00:00').toLocaleDateString('pt-BR')
+        const endDate = new Date(selectedRange.end + 'T00:00:00').toLocaleDateString('pt-BR')
+
+        // Calcular quantos dias tem o intervalo
+        const start = new Date(selectedRange.start + 'T00:00:00')
+        const end = new Date(selectedRange.end + 'T00:00:00')
+        const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+
+        return `${startDate} - ${endDate}`
     }
 
     const clearSelection = () => {
@@ -296,21 +346,28 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
 
                                     {/* Dias do mês */}
                                     <div className="grid grid-cols-7 gap-1">
-                                        {days.map((day, index) => (
-                                            <button
-                                                key={index}
-                                                onClick={() => handleDateClick(day.date)}
-                                                className={`
-                                                    p-2 text-xs rounded transition-colors
-                                                    ${!day.isCurrentMonth ? 'text-secondary-300' : 'text-secondary-700 hover:bg-secondary-100'}
-                                                    ${isDateInRange(day.date) ? 'bg-primary-100 text-primary-700' : ''}
-                                                    ${isDateStart(day.date) ? 'bg-primary-500 text-white' : ''}
-                                                    ${isDateEnd(day.date) ? 'bg-primary-500 text-white' : ''}
-                                                `}
-                                            >
-                                                {day.date.getDate()}
-                                            </button>
-                                        ))}
+                                        {days.map((day, index) => {
+                                            const dateStr = day.date.toLocaleDateString('en-CA')
+                                            const isInRange = tempRange && dateStr >= tempRange.start && dateStr <= tempRange.end
+                                            const isStart = tempRange && dateStr === tempRange.start
+                                            const isEnd = tempRange && dateStr === tempRange.end
+
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleDateClick(day.date)}
+                                                    className={`
+                                                        p-2 text-xs rounded transition-colors
+                                                        ${!day.isCurrentMonth ? 'text-secondary-300' : 'text-secondary-700 hover:bg-secondary-100'}
+                                                        ${isInRange ? 'bg-primary-100 text-primary-700' : ''}
+                                                        ${isStart ? 'bg-primary-500 text-white font-semibold' : ''}
+                                                        ${isEnd ? 'bg-primary-500 text-white font-semibold' : ''}
+                                                    `}
+                                                >
+                                                    {day.date.getDate()}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             </div>
