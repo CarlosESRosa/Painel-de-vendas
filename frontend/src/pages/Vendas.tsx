@@ -35,7 +35,7 @@ const Vendas = () => {
         perPage: 15
     })
 
-    // Estado para armazenar o total real de cada status (não afetado pelos filtros)
+    // Estados dos contadores de status (não afetados pelos filtros)
     const [statusCounts, setStatusCounts] = useState({
         total: 0,
         paid: 0,
@@ -187,31 +187,41 @@ const Vendas = () => {
         }
     }, [])
 
-    // Carregar contadores reais de cada status (não afetados pelos filtros)
+    // Carregar contadores de status (total de vendas por status)
     const loadStatusCounts = useCallback(async () => {
-        try {
-            const token = localStorage.getItem('access_token')
-            if (!token) return
+        const token = localStorage.getItem('access_token')
+        if (!token) return
 
-            // Buscar todas as vendas sem filtros para contar os status
+        try {
+            // Buscar todas as vendas para calcular contadores (limitado a 100 por página)
             const response = await SalesService.getSales({
                 page: 1,
-                perPage: 1000, // Buscar todas para contar
-                clientName: undefined,
-                startDate: undefined,
-                endDate: undefined,
-                paymentStatus: undefined
+                perPage: 100, // Limitar a 100 conforme validação do backend
+                clientName: '',
+                startDate: '',
+                endDate: '',
+                paymentStatus: 'ALL'
             }, token)
 
-            const allSales = response.items
-            setStatusCounts({
-                total: allSales.length,
-                paid: allSales.filter(s => s.paymentStatus === 'PAID').length,
-                pending: allSales.filter(s => s.paymentStatus === 'PENDING').length,
-                canceled: allSales.filter(s => s.paymentStatus === 'CANCELED').length
-            })
+            // Calcular contadores baseado nos dados retornados
+            console.log('response -->>', response.items)
+            const counts = {
+                total: response.total,
+                paid: response.items.filter(sale => sale.paymentStatus === 'PAID').length,
+                pending: response.items.filter(sale => sale.paymentStatus === 'PENDING').length,
+                canceled: response.items.filter(sale => sale.paymentStatus === 'CANCELED').length
+            }
+            console.log('counts -->>', counts)
+            setStatusCounts(counts)
         } catch (err) {
             console.error('Erro ao carregar contadores de status:', err)
+            // Em caso de erro, usar contadores padrão
+            setStatusCounts({
+                total: 0,
+                paid: 0,
+                pending: 0,
+                canceled: 0
+            })
         }
     }, [])
 
