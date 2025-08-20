@@ -171,6 +171,54 @@ export class SalesService {
         return { items, page, perPage, total, totalPages: Math.ceil(total / perPage) };
     }
 
+    async getStatusCounts(params: {
+        requester: { id: string; role: 'ADMIN' | 'SELLER' };
+        q?: string;
+        clientId?: string;
+        start?: string;
+        end?: string;
+    }) {
+        const { requester, q, clientId, start, end } = params;
+
+        const where: any = {};
+        if (requester.role !== 'ADMIN') where.sellerId = requester.id; // filtro de permissão
+
+        if (clientId) where.clientId = clientId;
+
+        if (start || end) {
+            where.date = {};
+            if (start) where.date.gte = new Date(start);
+            if (end) {
+                const endDate = new Date(end);
+                endDate.setHours(23, 59, 59, 999);
+                where.date.lte = endDate;
+            }
+        }
+
+        if (q) {
+            // busca por nome do cliente (SQLite LIKE)
+            where.client = {
+                name: { contains: q },
+            };
+        }
+
+        // Buscar todas as vendas que correspondem aos filtros (sem paginação)
+        const sales = await this.prisma.sale.findMany({
+            where,
+            select: { paymentStatus: true },
+        });
+
+        // Calcular contadores precisos
+        const counts = {
+            total: sales.length,
+            paid: sales.filter(sale => sale.paymentStatus === PaymentStatus.PAID).length,
+            pending: sales.filter(sale => sale.paymentStatus === PaymentStatus.PENDING).length,
+            canceled: sales.filter(sale => sale.paymentStatus === PaymentStatus.CANCELED).length,
+        };
+
+        return counts;
+    }
+
     private selectSale(includeItems = false) {
         return {
             id: true,

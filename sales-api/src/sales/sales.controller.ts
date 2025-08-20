@@ -72,4 +72,16 @@ export class SalesController {
             order: q.order ?? 'desc',
         });
     }
+
+    @Get('counts/status')
+    @ApiOperation({ summary: 'Obter contadores de status de vendas (precisos, sem paginação)' })
+    getStatusCounts(@CurrentUser() user: any, @Query() q: ListSalesQueryDto) {
+        return this.service.getStatusCounts({
+            requester: { id: user.sub, role: user.role },
+            q: q.q,
+            clientId: q.clientId,
+            start: q.start,
+            end: q.end,
+        });
+    }
 }

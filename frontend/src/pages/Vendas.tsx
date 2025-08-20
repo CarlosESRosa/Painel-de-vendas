@@ -35,7 +35,7 @@ const Vendas = () => {
         perPage: 15
     })
 
-    // Estados dos contadores de status (não afetados pelos filtros)
+    // Estados dos contadores de status (afetados pelos filtros aplicados)
     const [statusCounts, setStatusCounts] = useState({
         total: 0,
         paid: 0,
@@ -46,7 +46,7 @@ const Vendas = () => {
     // Debounce para o filtro de nome do cliente (meio segundo)
     const debouncedClientName = useDebounce(filters.clientName, 500)
 
-    // Tabs de status de pagamento com contadores fixos (não afetados pelos filtros)
+    // Tabs de status de pagamento com contadores dinâmicos (afetados pelos filtros)
     const paymentStatusTabs = [
         {
             id: 'ALL',
@@ -187,34 +187,26 @@ const Vendas = () => {
         }
     }, [])
 
-    // Carregar contadores de status (total de vendas por status)
-    const loadStatusCounts = useCallback(async () => {
+    // Carregar contadores de status baseado nos filtros atuais (precisos)
+    const loadStatusCounts = useCallback(async (queryFilters?: SalesFilters) => {
         const token = localStorage.getItem('access_token')
         if (!token) return
 
         try {
-            // Buscar todas as vendas para calcular contadores (limitado a 100 por página)
-            const response = await SalesService.getSales({
-                page: 1,
-                perPage: 100, // Limitar a 100 conforme validação do backend
-                clientName: '',
-                startDate: '',
-                endDate: '',
-                paymentStatus: 'ALL'
-            }, token)
-
-            // Calcular contadores baseado nos dados retornados
-            console.log('response -->>', response.items)
-            const counts = {
-                total: response.total,
-                paid: response.items.filter(sale => sale.paymentStatus === 'PAID').length,
-                pending: response.items.filter(sale => sale.paymentStatus === 'PENDING').length,
-                canceled: response.items.filter(sale => sale.paymentStatus === 'CANCELED').length
+            // Usar o endpoint específico para contadores (sem paginação)
+            const query = {
+                clientName: queryFilters?.clientName || undefined,
+                startDate: queryFilters?.dateRange?.start,
+                endDate: queryFilters?.dateRange?.end,
             }
-            console.log('counts -->>', counts)
+
+            const counts = await SalesService.getStatusCounts(query, token)
+
+            console.log('Contadores com filtros aplicados (precisos):', counts)
             setStatusCounts(counts)
         } catch (err) {
             console.error('Erro ao carregar contadores de status:', err)
+
             // Em caso de erro, usar contadores padrão
             setStatusCounts({
                 total: 0,
@@ -225,7 +217,7 @@ const Vendas = () => {
         }
     }, [])
 
-    // Carregar contadores na inicialização
+    // Carregar contadores na inicialização (sem filtros)
     useEffect(() => {
         loadStatusCounts()
     }, [loadStatusCounts])
@@ -238,6 +230,15 @@ const Vendas = () => {
         }
         loadSales(queryFilters)
     }, [debouncedClientName, filters.dateRange, filters.paymentStatus, filters.page, filters.perPage, loadSales])
+
+    // Recalcular contadores quando filtros mudarem (exceto paginação)
+    useEffect(() => {
+        const queryFilters = {
+            ...filters,
+            clientName: debouncedClientName
+        }
+        loadStatusCounts(queryFilters)
+    }, [debouncedClientName, filters.dateRange, loadStatusCounts])
 
     // Handlers dos filtros
     const handleClientNameChange = (value: string) => {
@@ -287,6 +288,9 @@ const Vendas = () => {
             paymentStatus: 'ALL',
             page: 1
         }))
+
+        // Recarregar contadores sem filtros
+        loadStatusCounts()
     }
 
     return (
@@ -349,6 +353,9 @@ const Vendas = () => {
 
                 {/* Tabs de status de pagamento */}
                 <div className="mt-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-medium text-secondary-700">Status de Pagamento</h3>
+                    </div>
                     <Tabs
                         tabs={paymentStatusTabs}
                         activeTab={filters.paymentStatus || 'ALL'}
@@ -405,7 +412,7 @@ const Vendas = () => {
                         <div className="w-5 h-5 bg-info-100 rounded-full flex items-center justify-center">
                             <span className="text-info-600 text-sm">i</span>
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <p className="text-sm text-info-800 font-medium">Filtros ativos:</p>
                             <div className="flex flex-wrap gap-2 mt-1">
                                 {filters.clientName && (
@@ -424,6 +431,12 @@ const Vendas = () => {
                                     </span>
                                 )}
                             </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs text-info-600 mb-1">Resultados filtrados:</p>
+                            <p className="text-sm font-medium text-info-800">
+                                {statusCounts.total} venda{statusCounts.total !== 1 ? 's' : ''} encontrada{statusCounts.total !== 1 ? 's' : ''}
+                            </p>
                         </div>
                     </div>
                 </div>

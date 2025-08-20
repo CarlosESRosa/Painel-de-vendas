@@ -107,6 +107,40 @@ export class SalesService {
         }
     }
 
+    // Obter contadores de status de vendas (precisos, sem paginação)
+    static async getStatusCounts(query: {
+        clientName?: string
+        startDate?: string
+        endDate?: string
+    }, token: string): Promise<{
+        total: number
+        paid: number
+        pending: number
+        canceled: number
+    }> {
+        try {
+            const params = new URLSearchParams()
+            
+            if (query.clientName) params.append('q', query.clientName)
+            if (query.startDate) params.append('start', query.startDate)
+            if (query.endDate) params.append('end', query.endDate)
+
+            const response = await api.authGet<{
+                total: number
+                paid: number
+                pending: number
+                canceled: number
+            }>(`${this.SALES_ENDPOINT}/counts/status?${params.toString()}`, token)
+            
+            return response
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error
+            }
+            throw new Error('Erro ao buscar contadores de status')
+        }
+    }
+
     // Atualizar venda
     static async updateSale(id: string, saleData: any, token: string) {
         try {

@@ -30,7 +30,70 @@ function cpfFromNineDigits(nineDigits: string) {
     return n + String(d1) + String(d2); // 11 dígitos
 }
 
+/** Gerar nome aleatório realista */
+function generateRandomName() {
+    const firstNames = [
+        'João', 'Maria', 'Pedro', 'Ana', 'Carlos', 'Lucia', 'Fernando', 'Patricia',
+        'Roberto', 'Juliana', 'Ricardo', 'Camila', 'André', 'Beatriz', 'Marcos', 'Aline',
+        'Felipe', 'Carolina', 'Rafael', 'Gabriela', 'Thiago', 'Mariana', 'Diego', 'Isabela',
+        'Lucas', 'Amanda', 'Bruno', 'Larissa', 'Gustavo', 'Vanessa', 'Rodrigo', 'Tatiana',
+        'Daniel', 'Fernanda', 'Leonardo', 'Priscila', 'Matheus', 'Bianca', 'Alexandre', 'Renata',
+        'Eduardo', 'Monica', 'Paulo', 'Cristina', 'Vinicius', 'Adriana', 'Fabricio', 'Elaine',
+        'Guilherme', 'Silvia', 'Henrique', 'Regina', 'Igor', 'Tania', 'Jefferson', 'Vera'
+    ];
+
+    const lastNames = [
+        'Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Almeida', 'Pereira',
+        'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho', 'Alves', 'Lopes',
+        'Soares', 'Fernandes', 'Vieira', 'Monteiro', 'Cardoso', 'Teixeira', 'Moura', 'Barros',
+        'Dias', 'Rocha', 'Nascimento', 'Mendes', 'Freitas', 'Barbosa', 'Pinto', 'Moraes',
+        'Araujo', 'Cavalcanti', 'Dantas', 'Cunha', 'Machado', 'Bezerra', 'Coelho', 'Reis',
+        'Correia', 'Melo', 'Nogueira', 'Guimaraes', 'Henriques', 'Medeiros', 'Borges', 'Sampaio',
+        'Viana', 'Moreira', 'Guedes', 'Caldeira', 'Lacerda', 'Queiroz', 'Domingues', 'Duarte'
+    ];
+
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+    return `${firstName} ${lastName}`;
+}
+
+/** Gerar CPF único */
+function generateUniqueCPF(existingCPFs: Set<string>): string {
+    let cpf: string;
+    do {
+        const base = Math.floor(Math.random() * 999999999).toString().padStart(9, '0');
+        cpf = cpfFromNineDigits(base);
+    } while (existingCPFs.has(cpf));
+
+    existingCPFs.add(cpf);
+    return cpf;
+}
+
+/** Gerar data aleatória nos últimos 12 meses */
+function generateRandomDate(): Date {
+    const now = new Date();
+    const pastDate = new Date(now.getTime() - Math.random() * 365 * 24 * 60 * 60 * 1000);
+    return pastDate;
+}
+
+/** Gerar método de pagamento aleatório */
+function generateRandomPaymentMethod(): PaymentMethod {
+    const methods: PaymentMethod[] = ['PIX', 'CARTAO', 'DINHEIRO', 'BOLETO'];
+    return methods[Math.floor(Math.random() * methods.length)];
+}
+
+/** Gerar status de pagamento com distribuição realista */
+function generateRandomPaymentStatus(): PaymentStatus {
+    const rand = Math.random();
+    if (rand < 0.65) return 'PAID';        // 65% pagas
+    if (rand < 0.85) return 'PENDING';     // 20% pendentes
+    return 'CANCELED';                      // 15% canceladas
+}
+
 async function main() {
+    console.log('🚀 Iniciando seed com 1500+ vendas...');
+
     // ---- USERS ----
     const passwordAdmin = await bcrypt.hash('admin123', 10);
     const passwordSeller = await bcrypt.hash('seller123', 10);
@@ -104,346 +167,107 @@ async function main() {
     }
 
     // ---- CLIENTS ----
-    // Bases determinísticas → CPFs válidos via helper acima
-    const clientBases = [
-        { name: 'João Silva', base: '123456789', email: 'joao.silva@example.com', phone: '(11) 98888-7777', cep: '01001-000', city: 'São Paulo', neighborhood: 'Sé', street: 'Praça da Sé', number: '100', state: 'SP' },
-        { name: 'Maria Oliveira', base: '987654321', email: 'maria.oliveira@example.com', phone: '(21) 97777-8888', cep: '20040-020', city: 'Rio de Janeiro', neighborhood: 'Centro', street: 'Rua da Quitanda', number: '250', state: 'RJ' },
-        { name: 'Carlos Pereira', base: '321654987', email: 'carlos.pereira@example.com', phone: '(31) 96666-5555', cep: '30110-012', city: 'Belo Horizonte', neighborhood: 'Funcionários', street: 'Av. Afonso Pena', number: '1500', state: 'MG' },
-        { name: 'Ana Costa', base: '111222333', email: 'ana.costa@example.com', phone: '(41) 95555-4444', cep: '80010-000', city: 'Curitiba', neighborhood: 'Centro', street: 'Rua XV de Novembro', number: '300', state: 'PR' },
-        { name: 'Pedro Santos', base: '444555666', email: 'pedro.santos@example.com', phone: '(51) 94444-3333', cep: '90010-320', city: 'Porto Alegre', neighborhood: 'Centro Histórico', street: 'Rua dos Andradas', number: '450', state: 'RS' },
-        { name: 'Luiza Martins', base: '159357456', email: 'luiza.martins@example.com', phone: '(62) 99999-1212', cep: '74000-000', city: 'Goiânia', neighborhood: 'Setor Central', street: 'Rua 10', number: '120', state: 'GO' },
-        { name: 'Rafael Souza', base: '753951852', email: 'rafael.souza@example.com', phone: '(71) 98888-1111', cep: '40020-000', city: 'Salvador', neighborhood: 'Comércio', street: 'Av. da França', number: '200', state: 'BA' },
-        { name: 'Fernanda Rocha', base: '258369147', email: 'fernanda.rocha@example.com', phone: '(85) 97777-2222', cep: '60060-000', city: 'Fortaleza', neighborhood: 'Centro', street: 'Rua General Sampaio', number: '80', state: 'CE' },
-        { name: 'Bruno Lima', base: '147258369', email: 'bruno.lima@example.com', phone: '(19) 97676-3333', cep: '13010-111', city: 'Campinas', neighborhood: 'Centro', street: 'Rua Barão de Jaguara', number: '900', state: 'SP' },
-        { name: 'Patrícia Alves', base: '246813579', email: 'patricia.alves@example.com', phone: '(27) 98888-4444', cep: '29010-000', city: 'Vitória', neighborhood: 'Centro', street: 'Av. Princesa Isabel', number: '50', state: 'ES' },
-        { name: 'Gustavo Nunes', base: '369258147', email: 'gustavo.nunes@example.com', phone: '(48) 99900-1234', cep: '88010-001', city: 'Florianópolis', neighborhood: 'Centro', street: 'Rua Felipe Schmidt', number: '700', state: 'SC' },
-        { name: 'Aline Ribeiro', base: '852741963', email: 'aline.ribeiro@example.com', phone: '(31) 97777-9090', cep: '30160-010', city: 'Belo Horizonte', neighborhood: 'Savassi', street: 'Rua Pernambuco', number: '321', state: 'MG' },
-        { name: 'Ricardo Prado', base: '963852741', email: 'ricardo.prado@example.com', phone: '(11) 93456-7890', cep: '03333-000', city: 'São Paulo', neighborhood: 'Tatuapé', street: 'Rua Tuiuti', number: '1234', state: 'SP' },
-        { name: 'Camila Duarte', base: '741852963', email: 'camila.duarte@example.com', phone: '(21) 94567-1234', cep: '22775-904', city: 'Rio de Janeiro', neighborhood: 'Barra da Tijuca', street: 'Av. das Américas', number: '4200', state: 'RJ' },
-        { name: 'Rodrigo Teixeira', base: '951357852', email: 'rodrigo.teixeira@example.com', phone: '(51) 99876-5432', cep: '90560-002', city: 'Porto Alegre', neighborhood: 'Moinhos de Vento', street: 'Rua Padre Chagas', number: '88', state: 'RS' },
-        { name: 'Beatriz Mendes', base: '357159456', email: 'beatriz.mendes@example.com', phone: '(41) 99555-1212', cep: '80420-090', city: 'Curitiba', neighborhood: 'Batel', street: 'Av. Batel', number: '500', state: 'PR' },
-        { name: 'Marcos Vinícius', base: '654987321', email: 'marcos.vinicius@example.com', phone: '(85) 99123-4567', cep: '60125-060', city: 'Fortaleza', neighborhood: 'Aldeota', street: 'Av. Dom Luís', number: '1200', state: 'CE' },
-        { name: 'Juliana Barros', base: '852963741', email: 'juliana.barros@example.com', phone: '(71) 99666-7777', cep: '41830-480', city: 'Salvador', neighborhood: 'Itaigara', street: 'Av. Antônio Carlos Magalhães', number: '3500', state: 'BA' },
-        { name: 'Felipe Araújo', base: '159753486', email: 'felipe.araujo@example.com', phone: '(62) 98111-2222', cep: '74810-100', city: 'Goiânia', neighborhood: 'Jd. Goiás', street: 'Av. Jamel Cecílio', number: '3300', state: 'GO' },
-        { name: 'Lorena Farias', base: '753486159', email: 'lorena.farias@example.com', phone: '(27) 98800-7788', cep: '29101-970', city: 'Vila Velha', neighborhood: 'Praia da Costa', street: 'Av. Antônio Gil Veloso', number: '10', state: 'ES' },
-    ];
+    console.log('📝 Criando 1500+ clientes únicos...');
 
-    const clients: any[] = [];
-    for (const c of clientBases) {
-        const cpf = cpfFromNineDigits(c.base); // 11 dígitos válidos
-        const client = await prisma.client.upsert({
-            where: { cpf }, // seu schema tem cpf @unique
-            update: {},
-            create: {
-                name: c.name,
-                cpf, // salva sem máscara, alinhado ao que seu serviço espera
-                email: c.email,
-                phone: c.phone,
-                cep: c.cep,
-                city: c.city,
-                neighborhood: c.neighborhood,
-                street: c.street,
-                number: c.number,
-                state: c.state,
+    const existingCPFs = new Set<string>();
+    const clients: Array<{ id: string; name: string; cpf: string; email: string | null; phone: string | null; cep: string | null; city: string | null; neighborhood: string | null; street: string | null; number: string | null; state: string | null; createdAt: Date; updatedAt: Date }> = [];
+
+    // Criar 1500+ clientes únicos
+    for (let i = 0; i < 1500; i++) {
+        const name = generateRandomName();
+        const cpf = generateUniqueCPF(existingCPFs);
+
+        const client = await prisma.client.create({
+            data: {
+                name,
+                cpf,
+                email: `${name.toLowerCase().replace(' ', '.')}${i}@example.com`,
+                phone: `(${Math.floor(Math.random() * 90) + 10}) 9${Math.floor(Math.random() * 9000) + 1000}-${Math.floor(Math.random() * 9000) + 1000}`,
+                cep: `${Math.floor(Math.random() * 90000) + 10000}-${Math.floor(Math.random() * 900) + 100}`,
+                city: ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Curitiba', 'Porto Alegre', 'Goiânia', 'Salvador', 'Fortaleza', 'Campinas', 'Vitória', 'Florianópolis'][Math.floor(Math.random() * 11)],
+                neighborhood: ['Centro', 'Vila Nova', 'Jardim', 'Bairro', 'Setor'][Math.floor(Math.random() * 5)],
+                street: ['Rua das Flores', 'Avenida Principal', 'Travessa', 'Alameda', 'Praça'][Math.floor(Math.random() * 5)],
+                number: (Math.floor(Math.random() * 1000) + 1).toString(),
+                state: ['SP', 'RJ', 'MG', 'PR', 'RS', 'GO', 'BA', 'CE', 'SC', 'ES'][Math.floor(Math.random() * 10)],
             },
         });
         clients.push(client);
+
+        if (i % 100 === 0) {
+            console.log(`✅ ${i} clientes criados...`);
+        }
     }
 
     // ---- SALES ----
-    const SALES_SEED = [
-        // Vendas PAGAS (PAID) - 15 vendas
-        {
-            clientName: 'João Silva',
-            productNames: ['Monitor 27" IPS 75Hz', 'Teclado Mecânico ABNT2'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-15',
-            notes: 'Cliente solicitou entrega rápida'
-        },
-        {
-            clientName: 'Maria Oliveira',
-            productNames: ['Cadeira Ergonômica Mesh', 'Mesa Office 1,40m'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-16',
-            notes: 'Montagem incluída'
-        },
-        {
-            clientName: 'Carlos Pereira',
-            productNames: ['Impressora Laser Mono', 'Nobreak 1200VA'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-17',
-            notes: 'Instalação de drivers incluída'
-        },
-        {
-            clientName: 'Ana Costa',
-            productNames: ['Projetor 3500 lumens', 'Tela Retrátil 100"'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-18',
-            notes: 'Para sala de reuniões'
-        },
-        {
-            clientName: 'Pedro Santos',
-            productNames: ['Kit Teclado + Mouse Sem Fio', 'Headset USB com Microfone'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-19',
-            notes: 'Home office'
-        },
-        {
-            clientName: 'Luiza Martins',
-            productNames: ['Cadeira Gamer (para escritório)', 'Suporte Monitor Articulado'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-20',
-            notes: 'Setup gamer profissional'
-        },
-        {
-            clientName: 'Rafael Souza',
-            productNames: ['Monitor 24" Full HD', 'Mouse Ergonômico Vertical'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-21',
-            notes: 'Para desenvolvedor'
-        },
-        {
-            clientName: 'Fernanda Rocha',
-            productNames: ['Docking Station USB-C', 'Hub USB 3.0 4 Portas'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-22',
-            notes: 'Setup para notebook'
-        },
-        {
-            clientName: 'Bruno Lima',
-            productNames: ['Mesa Ajustável (Standing Desk)', 'Gaveteiro 3 gavetas'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-23',
-            notes: 'Escritório moderno'
-        },
-        {
-            clientName: 'Patrícia Alves',
-            productNames: ['Webcam 1080p 30fps', 'Base Notebook com Cooler'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-24',
-            notes: 'Para reuniões online'
-        },
-        {
-            clientName: 'Gustavo Nunes',
-            productNames: ['Roteador AC1200 Dual Band', 'Switch 8 Portas Gigabit'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-25',
-            notes: 'Infraestrutura de rede'
-        },
-        {
-            clientName: 'Aline Ribeiro',
-            productNames: ['Monitor 27" IPS 75Hz', 'Teclado Sem Fio Slim'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-26',
-            notes: 'Setup limpo e minimalista'
-        },
-        {
-            clientName: 'Ricardo Prado',
-            productNames: ['Multifuncional Jato de Tinta', 'Fragmentadora de Papel'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-27',
-            notes: 'Para pequeno escritório'
-        },
-        {
-            clientName: 'Camila Duarte',
-            productNames: ['Cadeira Presidente Couro PU', 'Quadro Branco 120x90'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-28',
-            notes: 'Sala executiva'
-        },
-        {
-            clientName: 'Rodrigo Teixeira',
-            productNames: ['Etiquetadora Portátil', 'Filtro de Linha 6 Tomadas'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PAID' as PaymentStatus,
-            date: '2025-01-29',
-            notes: 'Para organização de estoque'
-        },
+    console.log('🛒 Criando 1500+ vendas...');
 
-        // Vendas PENDENTES (PENDING) - 10 vendas
-        {
-            clientName: 'Beatriz Mendes',
-            productNames: ['Monitor 24" Full HD', 'Mouse Óptico 1600 DPI'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-01-30',
-            notes: 'Aguardando aprovação do cartão'
-        },
-        {
-            clientName: 'Marcos Vinícius',
-            productNames: ['Teclado Mecânico ABNT2', 'Headset USB com Microfone'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-01-31',
-            notes: 'Transferência em processamento'
-        },
-        {
-            clientName: 'Juliana Barros',
-            productNames: ['Cadeira Ergonômica Mesh'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-01',
-            notes: 'PIX não confirmado'
-        },
-        {
-            clientName: 'Felipe Araújo',
-            productNames: ['Mesa Office 1,40m', 'Gaveteiro 3 gavetas'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-02',
-            notes: 'Cartão com limite insuficiente'
-        },
-        {
-            clientName: 'Lorena Farias',
-            productNames: ['Docking Station USB-C', 'Hub USB 3.0 4 Portas'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-03',
-            notes: 'Aguardando confirmação bancária'
-        },
-        {
-            clientName: 'João Silva',
-            productNames: ['Nobreak 1200VA', 'Filtro de Linha 6 Tomadas'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-04',
-            notes: 'Segunda compra do cliente'
-        },
-        {
-            clientName: 'Maria Oliveira',
-            productNames: ['Suporte Monitor Articulado', 'Base Notebook com Cooler'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-05',
-            notes: 'Acessórios para setup existente'
-        },
-        {
-            clientName: 'Carlos Pereira',
-            productNames: ['Roteador AC1200 Dual Band'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-06',
-            notes: 'Upgrade de rede residencial'
-        },
-        {
-            clientName: 'Ana Costa',
-            productNames: ['Webcam 1080p 30fps', 'Headset USB com Microfone'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-07',
-            notes: 'Para trabalho remoto'
-        },
-        {
-            clientName: 'Pedro Santos',
-            productNames: ['Impressora Laser Mono'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'PENDING' as PaymentStatus,
-            date: '2025-02-08',
-            notes: 'Para pequena empresa'
-        },
+    const salesCreated: Array<{ id: string; createdAt: Date; updatedAt: Date; sellerId: string; clientId: string; date: Date; totalValue: any; paymentStatus: PaymentStatus; paymentMethod: PaymentMethod | null; paymentDate: Date | null; commissionPercentSnapshot: any; commissionValue: any; notes: string | null }> = [];
 
-        // Vendas CANCELADAS (CANCELLED) - 5 vendas
-        {
-            clientName: 'Luiza Martins',
-            productNames: ['Projetor 3500 lumens'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'CANCELED' as PaymentStatus,
-            date: '2025-02-09',
-            notes: 'Cliente desistiu - preço alto'
-        },
-        {
-            clientName: 'Rafael Souza',
-            productNames: ['Cadeira Gamer (para escritório)', 'Mesa Ajustável (Standing Desk)'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'CANCELED' as PaymentStatus,
-            date: '2025-02-10',
-            notes: 'Cancelado por falta de estoque'
-        },
-        {
-            clientName: 'Fernanda Rocha',
-            productNames: ['Monitor 27" IPS 75Hz', 'Teclado Mecânico ABNT2'],
-            paymentMethod: 'BOLETO' as PaymentMethod,
-            paymentStatus: 'CANCELED' as PaymentStatus,
-            date: '2025-02-11',
-            notes: 'Cliente mudou de ideia'
-        },
-        {
-            clientName: 'Bruno Lima',
-            productNames: ['Tela Retrátil 100"', 'Quadro Branco 120x90'],
-            paymentMethod: 'CARTAO' as PaymentMethod,
-            paymentStatus: 'CANCELED' as PaymentStatus,
-            date: '2025-02-12',
-            notes: 'Cancelado - sala não ficou pronta'
-        },
-        {
-            clientName: 'Patrícia Alves',
-            productNames: ['Fragmentadora de Papel', 'Etiquetadora Portátil'],
-            paymentMethod: 'PIX' as PaymentMethod,
-            paymentStatus: 'CANCELED' as PaymentStatus,
-            date: '2025-02-13',
-            notes: 'Empresa fechou antes da entrega'
+    for (let i = 0; i < 1500; i++) {
+        // Selecionar cliente aleatório
+        const client = clients[Math.floor(Math.random() * clients.length)];
+
+        // Selecionar 1-4 produtos aleatórios
+        const numProducts = Math.floor(Math.random() * 4) + 1;
+        const selectedProducts: Array<{ id: string; name: string; sku: string; price: any; isActive: boolean; createdAt: Date; updatedAt: Date }> = [];
+        const usedIndexes = new Set<number>();
+
+        for (let j = 0; j < numProducts; j++) {
+            let productIndex;
+            do {
+                productIndex = Math.floor(Math.random() * products.length);
+            } while (usedIndexes.has(productIndex));
+
+            usedIndexes.add(productIndex);
+            selectedProducts.push(products[productIndex]);
         }
-    ];
-
-    // Criar vendas
-    for (const saleData of SALES_SEED) {
-        const client = clients.find(c => c.name === saleData.clientName);
-        if (!client) continue;
 
         // Calcular valor total da venda
         let totalValue = 0;
         const saleItems: any[] = [];
 
-        for (const productName of saleData.productNames) {
-            const product = products.find(p => p.name === productName);
-            if (product) {
-                totalValue += parseFloat(product.price.toString());
-                saleItems.push({
-                    productId: product.id,
-                    quantity: 1,
-                    unitPrice: product.price.toString(),
-                    subtotal: product.price.toString()
-                });
-            }
+        for (const product of selectedProducts) {
+            const quantity = Math.floor(Math.random() * 3) + 1; // 1-3 unidades
+            const unitPrice = parseFloat(product.price.toString());
+            const subtotal = unitPrice * quantity;
+            totalValue += subtotal;
+
+            saleItems.push({
+                productId: product.id,
+                quantity,
+                unitPrice: unitPrice.toFixed(2),
+                subtotal: subtotal.toFixed(2)
+            });
         }
 
-        if (saleItems.length === 0) continue;
+        // Gerar dados aleatórios da venda
+        const paymentStatus = generateRandomPaymentStatus();
+        const paymentMethod = generateRandomPaymentMethod();
+        const saleDate = generateRandomDate();
+
+        // Determinar data de pagamento baseada no status
+        let paymentDate: Date | null = null;
+        if (paymentStatus === 'PAID') {
+            // Pagamento realizado no mesmo dia ou até 3 dias depois
+            const daysAfter = Math.floor(Math.random() * 4);
+            paymentDate = new Date(saleDate.getTime() + daysAfter * 24 * 60 * 60 * 1000);
+        }
 
         // Calcular comissão (5% do valor total)
         const commissionValue = totalValue * 0.05;
 
-        // Determinar data de pagamento baseada no status
-        let paymentDate: Date | null = null;
-        if (saleData.paymentStatus === 'PAID') {
-            paymentDate = new Date(saleData.date);
-        }
-
         // Criar a venda
         const sale = await prisma.sale.create({
             data: {
-                date: new Date(saleData.date),
-                notes: saleData.notes,
+                date: saleDate,
+                notes: `Venda #${i + 1} - ${paymentStatus === 'PAID' ? 'Cliente satisfeito' : paymentStatus === 'PENDING' ? 'Aguardando confirmação' : 'Cancelada pelo cliente'}`,
                 totalValue: totalValue.toFixed(2),
-                paymentStatus: saleData.paymentStatus,
-                paymentMethod: saleData.paymentMethod,
-                paymentDate: paymentDate,
+                paymentStatus,
+                paymentMethod,
+                paymentDate,
                 commissionPercentSnapshot: '0.0500',
                 commissionValue: commissionValue.toFixed(2),
-                sellerId: Math.random() > 0.5 ? adminUser.id : sellerUser.id, // Alternar entre vendedores
+                sellerId: Math.random() > 0.3 ? sellerUser.id : adminUser.id, // 70% vendedor, 30% admin
                 clientId: client.id,
                 items: {
                     create: saleItems
@@ -451,10 +275,27 @@ async function main() {
             }
         });
 
-        console.log(`Venda criada: ${saleData.clientName} - ${saleData.productNames.join(', ')} - ${saleData.paymentStatus}`);
+        salesCreated.push(sale);
+
+        if (i % 100 === 0) {
+            console.log(`✅ ${i} vendas criadas...`);
+        }
     }
 
-    console.log('Seed concluído (users + products + clients + sales)');
+    console.log(`🎉 Seed concluído com sucesso!`);
+    console.log(`📊 Resumo:`);
+    console.log(`   - ${clients.length} clientes criados`);
+    console.log(`   - ${products.length} produtos criados`);
+    console.log(`   - ${salesCreated.length} vendas criadas`);
+
+    // Contar status das vendas
+    const paidCount = salesCreated.filter(s => s.paymentStatus === 'PAID').length;
+    const pendingCount = salesCreated.filter(s => s.paymentStatus === 'PENDING').length;
+    const canceledCount = salesCreated.filter(s => s.paymentStatus === 'CANCELED').length;
+
+    console.log(`   - Vendas pagas: ${paidCount}`);
+    console.log(`   - Vendas pendentes: ${pendingCount}`);
+    console.log(`   - Vendas canceladas: ${canceledCount}`);
 }
 
 main()
