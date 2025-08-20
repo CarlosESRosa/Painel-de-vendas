@@ -72,6 +72,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
     }),
+    authPatch: <T>(endpoint: string, token: string, data: any) => authenticatedRequest<T>(endpoint, token, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    }),
     authPut: <T>(endpoint: string, token: string, data: any) => authenticatedRequest<T>(endpoint, token, {
         method: 'PUT',
         body: JSON.stringify(data),

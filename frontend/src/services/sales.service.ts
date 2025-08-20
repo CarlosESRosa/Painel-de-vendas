@@ -1,6 +1,54 @@
 import { api } from './api'
 import type { SalesResponse, SalesQuery } from '../types/sales.types'
 
+export interface SaleItem {
+    id: string
+    productId: string
+    quantity: number
+    unitPrice: string
+    subtotal: string
+    product: {
+        id: string
+        name: string
+        sku: string
+    }
+}
+
+export interface SaleWithItems {
+    id: string
+    date: string
+    notes: string | null
+    totalValue: string
+    paymentStatus: 'PAID' | 'PENDING' | 'CANCELED'
+    paymentMethod: string
+    paymentDate: string | null
+    commissionPercentSnapshot: string
+    commissionValue: string
+    createdAt: string
+    updatedAt: string
+    sellerId: string
+    clientId: string
+    seller: {
+        id: string
+        name: string
+        email: string
+        role: string
+    }
+    client: {
+        id: string
+        name: string
+        cpf: string
+    }
+    items: SaleItem[]
+}
+
+export interface UpdateSaleItemsData {
+    items: {
+        productId: string
+        quantity: number
+    }[]
+}
+
 export class SalesService {
     private static readonly SALES_ENDPOINT = '/sales'
 
@@ -20,10 +68,10 @@ export class SalesService {
         return response
     }
 
-    // Obter venda por ID
-    static async getSaleById(id: string, token: string) {
+    // Obter venda por ID com itens
+    static async getSaleById(id: string, token: string): Promise<SaleWithItems> {
         try {
-            const response = await api.authGet(`${this.SALES_ENDPOINT}/${id}`, token)
+            const response = await api.authGet<SaleWithItems>(`${this.SALES_ENDPOINT}/${id}`, token)
             return response
         } catch (error) {
             if (error instanceof Error) {
@@ -43,6 +91,19 @@ export class SalesService {
                 throw error
             }
             throw new Error('Erro ao criar venda')
+        }
+    }
+
+    // Atualizar itens da venda
+    static async updateSaleItems(id: string, itemsData: UpdateSaleItemsData, token: string): Promise<SaleWithItems> {
+        try {
+            const response = await api.authPatch<SaleWithItems>(`${this.SALES_ENDPOINT}/${id}/items`, token, itemsData)
+            return response
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error
+            }
+            throw new Error('Erro ao atualizar itens da venda')
         }
     }
 

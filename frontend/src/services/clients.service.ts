@@ -91,4 +91,25 @@ export class ClientsService {
             throw new Error('Erro ao listar clientes')
         }
     }
+
+    // Atualizar cliente
+    static async updateClient(id: string, clientData: Partial<CreateClientData>, token: string): Promise<Client> {
+        try {
+            // Remover máscaras dos campos formatados
+            const cleanData = {
+                ...clientData,
+                cpf: clientData.cpf ? clientData.cpf.replace(/\D/g, '') : undefined,
+                phone: clientData.phone ? clientData.phone.replace(/\D/g, '') : undefined,
+                cep: clientData.cep ? clientData.cep.replace(/\D/g, '') : undefined
+            }
+
+            const response = await api.authPut<Client>(`${this.CLIENTS_ENDPOINT}/${id}`, token, cleanData)
+            return response
+        } catch (error) {
+            if (error instanceof Error) {
+                throw error
+            }
+            throw new Error('Erro ao atualizar cliente')
+        }
+    }
 }

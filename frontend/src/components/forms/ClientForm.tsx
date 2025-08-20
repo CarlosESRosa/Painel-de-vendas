@@ -18,20 +18,22 @@ interface ClientFormData {
 interface ClientFormProps {
     onSubmit: (data: ClientFormData) => void
     loading?: boolean
+    initialData?: Partial<ClientFormData>
+    isEditing?: boolean
 }
 
-const ClientForm = ({ onSubmit, loading = false }: ClientFormProps) => {
+const ClientForm = ({ onSubmit, loading = false, initialData, isEditing = false }: ClientFormProps) => {
     const [formData, setFormData] = useState<ClientFormData>({
-        name: '',
-        cpf: '',
-        email: '',
-        phone: '',
-        cep: '',
-        city: '',
-        neighborhood: '',
-        street: '',
-        number: '',
-        state: ''
+        name: initialData?.name || '',
+        cpf: initialData?.cpf || '',
+        email: initialData?.email || '',
+        phone: initialData?.phone || '',
+        cep: initialData?.cep || '',
+        city: initialData?.city || '',
+        neighborhood: initialData?.neighborhood || '',
+        street: initialData?.street || '',
+        number: initialData?.number || '',
+        state: initialData?.state || ''
     })
 
     const [errors, setErrors] = useState<Partial<ClientFormData>>({})
@@ -228,7 +230,7 @@ const ClientForm = ({ onSubmit, loading = false }: ClientFormProps) => {
                     className="btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
                     <UserPlusIcon className="w-5 h-5" />
-                    <span>{loading ? 'Criando cliente...' : 'Criar Cliente'}</span>
+                    <span>{loading ? (isEditing ? 'Atualizando cliente...' : 'Criando cliente...') : (isEditing ? 'Atualizar Cliente' : 'Criar Cliente')}</span>
                 </button>
             </div>
         </form>
