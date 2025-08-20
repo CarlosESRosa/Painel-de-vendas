@@ -1,4 +1,4 @@
-import { forwardRef, InputHTMLAttributes } from 'react'
+import { forwardRef, type InputHTMLAttributes } from 'react'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {

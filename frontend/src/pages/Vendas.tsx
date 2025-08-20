@@ -10,9 +10,10 @@ import Input from '../components/ui/Input'
 import Tabs from '../components/ui/Tabs'
 import Table from '../components/ui/Table'
 import Pagination from '../components/ui/Pagination'
+import DatePicker from '../components/ui/DatePicker'
 
 const Vendas = () => {
-    const { user } = useAuth()
+
     const navigate = useNavigate()
     const [sales, setSales] = useState<Sale[]>([])
     const [loading, setLoading] = useState(true)
@@ -245,13 +246,7 @@ const Vendas = () => {
         setFilters(prev => ({ ...prev, clientName: value, page: 1 }))
     }
 
-    const handleDateChange = (date: string) => {
-        setFilters(prev => ({
-            ...prev,
-            dateRange: { start: date, end: date },
-            page: 1
-        }))
-    }
+
 
     const handlePaymentStatusChange = (status: string) => {
         setFilters(prev => ({
@@ -330,11 +325,17 @@ const Vendas = () => {
 
                     {/* Filtro por data */}
                     <div>
-                        <Input
-                            label="Data"
-                            type="date"
-                            value={filters.dateRange?.start || ''}
-                            onChange={(e) => handleDateChange(e.target.value)}
+                        <DatePicker
+                            label="Período"
+                            placeholder="Selecione um período"
+                            value={filters.dateRange}
+                            onChange={(dateRange) => {
+                                setFilters(prev => ({
+                                    ...prev,
+                                    dateRange,
+                                    page: 1
+                                }))
+                            }}
                         />
                     </div>
 

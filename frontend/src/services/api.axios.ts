@@ -1,12 +1,9 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
 import { API_CONFIG, getAuthHeaders } from '../config/api.config'
 
-// Configuração da API
-const API_BASE_URL = API_CONFIG.BASE_URL
-
-// Criar instância do axios com configurações padrão
+// Instância base do axios
 const axiosInstance: AxiosInstance = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_CONFIG.BASE_URL,
     timeout: API_CONFIG.TIMEOUT,
     headers: API_CONFIG.DEFAULT_HEADERS,
     withCredentials: true, // Importante para CORS
@@ -14,7 +11,7 @@ const axiosInstance: AxiosInstance = axios.create({
 
 // Interceptor para requisições
 axiosInstance.interceptors.request.use(
-    (config: AxiosRequestConfig) => {
+    (config: any) => {
         // Log das requisições em desenvolvimento
         if (import.meta.env.DEV) {
             console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`)
@@ -64,9 +61,9 @@ axiosInstance.interceptors.response.use(
 const authenticatedRequest = async <T>(
     endpoint: string,
     token: string,
-    config: AxiosRequestConfig = {}
+    config: any = {}
 ): Promise<T> => {
-    const authConfig: AxiosRequestConfig = {
+    const authConfig = {
         ...config,
         headers: {
             ...config.headers,
@@ -77,33 +74,33 @@ const authenticatedRequest = async <T>(
     return axiosInstance.request<T>({
         url: endpoint,
         ...authConfig,
-    })
+    }).then(response => response.data)
 }
 
 export const api = {
     // Requisições públicas
-    get: <T>(endpoint: string, config?: AxiosRequestConfig) =>
+    get: <T>(endpoint: string, config?: any) =>
         axiosInstance.get<T>(endpoint, config),
 
-    post: <T>(endpoint: string, data?: any, config?: AxiosRequestConfig) =>
+    post: <T>(endpoint: string, data?: any, config?: any) =>
         axiosInstance.post<T>(endpoint, data, config),
 
-    put: <T>(endpoint: string, data?: any, config?: AxiosRequestConfig) =>
+    put: <T>(endpoint: string, data?: any, config?: any) =>
         axiosInstance.put<T>(endpoint, data, config),
 
-    delete: <T>(endpoint: string, config?: AxiosRequestConfig) =>
+    delete: <T>(endpoint: string, config?: any) =>
         axiosInstance.delete<T>(endpoint, config),
 
     // Requisições autenticadas
-    authGet: <T>(endpoint: string, token: string, config?: AxiosRequestConfig) =>
+    authGet: <T>(endpoint: string, token: string, config?: any) =>
         authenticatedRequest<T>(endpoint, token, { ...config, method: 'GET' }),
 
-    authPost: <T>(endpoint: string, token: string, data?: any, config?: AxiosRequestConfig) =>
+    authPost: <T>(endpoint: string, token: string, data?: any, config?: any) =>
         authenticatedRequest<T>(endpoint, token, { ...config, method: 'POST', data }),
 
-    authPut: <T>(endpoint: string, token: string, data?: any, config?: AxiosRequestConfig) =>
+    authPut: <T>(endpoint: string, token: string, data?: any, config?: any) =>
         authenticatedRequest<T>(endpoint, token, { ...config, method: 'PUT', data }),
 
-    authDelete: <T>(endpoint: string, token: string, config?: AxiosRequestConfig) =>
+    authDelete: <T>(endpoint: string, token: string, config?: any) =>
         authenticatedRequest<T>(endpoint, token, { ...config, method: 'DELETE' }),
 }

@@ -1,7 +1,7 @@
 // Configurações da API
 export const API_CONFIG = {
     // URL base da API
-    BASE_URL: process.env.NODE_ENV === 'production'
+    BASE_URL: import.meta.env.PROD
         ? 'https://sua-api-producao.com'
         : 'http://localhost:3000',
 
