@@ -1,15 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products.module';
 import { ClientsModule } from './clients/clients.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     PrismaModule,
     UsersModule,
     AuthModule,
@@ -18,4 +21,4 @@ import { SalesModule } from './sales/sales.module';
     SalesModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}
