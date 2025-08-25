@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { SalesService, type SaleWithItems, type UpdateSaleItemsData } from '../services/sales.service'
-import { ClientsService, type CreateClientData } from '../services/clients.service'
-import { StageCard, ProductSelector } from '../components/ui'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import ClientForm from '../components/forms/ClientForm'
+import { ProductSelector, StageCard } from '../components/ui'
+import { useAuth } from '../contexts/AuthContext'
+import { ClientsService, type CreateClientData } from '../services/clients.service'
+import { SalesService, type SaleWithItems, type UpdateSaleItemsData } from '../services/sales.service'
 
 const EditarVenda = () => {
     const { id } = useParams<{ id: string }>()
