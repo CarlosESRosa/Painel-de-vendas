@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ClientStep from '../components/steps/ClientStep';
 import ItemsStep from '../components/steps/ItemsStep';
 import PaymentStep from '../components/steps/PaymentStep';
+import SummaryStep from '../components/steps/SummaryStep';
 import { StageCard } from '../components/ui';
 import { useSaleWizard, type StageKey } from '../hooks/useSaleWizard';
 
@@ -155,10 +156,11 @@ const VendaWizard = () => {
 
         {/* STEP: SUMMARY */}
         {viewStage === 'summary' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-secondary-900">Resumo</h2>
-            <p className="text-secondary-600 mt-2">Resumo final da venda.</p>
-          </div>
+          <SummaryStep
+            sale={sale}
+            onBackToItems={() => navigateToStage('items')}
+            onFinish={() => navigate('/vendas')}
+          />
         )}
       </div>
     </div>
