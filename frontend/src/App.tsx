@@ -1,18 +1,15 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
-import Layout from './components/Layout'
-import ProtectedRoute from './components/ProtectedRoute'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Vendas from './pages/Vendas'
-import NovaVenda from './pages/NovaVenda'
-import EditarVenda from './pages/EditarVenda'
-import Clientes from './pages/Clientes'
-import Vendedores from './pages/Vendedores'
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import Clientes from './pages/Clientes';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Vendas from './pages/Vendas';
+import VendaWizard from './pages/VendaWizard';
+import Vendedores from './pages/Vendedores';
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth()
-
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -26,14 +23,14 @@ function AppRoutes() {
       >
         <Route index element={<Dashboard />} />
         <Route path="vendas" element={<Vendas />} />
-        <Route path="vendas/nova" element={<NovaVenda />} />
-        <Route path="vendas/editar/:id" element={<EditarVenda />} />
+        <Route path="/vendas/nova" element={<VendaWizard key="nova" />} />
+        <Route path="/vendas/editar/:id" element={<VendaWizard key="editar" />} />
         <Route path="clientes" element={<Clientes />} />
         <Route path="vendedores" element={<Vendedores />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
+  );
 }
 
 function App() {
@@ -43,7 +40,7 @@ function App() {
         <AppRoutes />
       </AuthProvider>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
