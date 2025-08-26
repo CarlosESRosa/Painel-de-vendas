@@ -85,7 +85,10 @@ export class SalesService {
   }
 
   // Criar nova venda
-  static async createSale(saleData: any, token: string): Promise<{ id: string }> {
+  static async createSale(
+    saleData: { clientId: string; notes?: string },
+    token: string,
+  ): Promise<{ id: string }> {
     try {
       const response = await api.authPost<{ id: string }>(this.SALES_ENDPOINT, token, saleData);
       return response;
@@ -156,7 +159,11 @@ export class SalesService {
   }
 
   // Atualizar venda
-  static async updateSale(id: string, saleData: any, token: string) {
+  static async updateSale(
+    id: string,
+    saleData: Partial<{ notes: string; clientId: string }>,
+    token: string,
+  ) {
     try {
       const response = await api.authPut(`${this.SALES_ENDPOINT}/${id}`, token, saleData);
       return response;

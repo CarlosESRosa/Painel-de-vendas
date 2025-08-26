@@ -2,6 +2,7 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ClientStep from '../components/steps/ClientStep';
+import ItemsStep from '../components/steps/ItemsStep';
 import { StageCard } from '../components/ui';
 import { useSaleWizard, type StageKey } from '../hooks/useSaleWizard';
 
@@ -17,9 +18,9 @@ const VendaWizard = () => {
     viewStage,
     navigateToStage,
     createClientAndSale,
-    updateClient, // <-- FIX: now coming from the hook
-    // replaceItems, // (use here when you wire the Items step)
-    // paySale,      // (use here when you wire the Payment step)
+    updateClient,
+    replaceItems,
+    paySale,
   } = useSaleWizard(id);
 
   const stageConfig: { stage: StageKey; title: string; description: string }[] = [
@@ -122,15 +123,18 @@ const VendaWizard = () => {
           />
         )}
 
-        {/* STEP: ITEMS (placeholder; plug your ProductSelector and call replaceItems) */}
+        {/* STEP: ITEMS */}
         {viewStage === 'items' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-secondary-900">Itens da Venda</h2>
-            <p className="text-secondary-600 mt-2">Selecione produtos e quantidades.</p>
-            {/* Example when wiring:
-                <ItemsStep sale={sale} onConfirm={(items) => replaceItems(items)} />
-            */}
-          </div>
+          <ItemsStep
+            sale={sale}
+            onConfirm={async (items) => {
+              try {
+                await replaceItems(items);
+              } catch (error) {
+                console.error('Error updating sale items:', error);
+              }
+            }}
+          />
         )}
 
         {/* STEP: PAYMENT (placeholder; call paySale) */}
