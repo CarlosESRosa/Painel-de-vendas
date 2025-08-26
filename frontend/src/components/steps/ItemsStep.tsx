@@ -44,6 +44,9 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
   const [confirmChecked, setConfirmChecked] = useState(false);
   const [confirmCode, setConfirmCode] = useState('');
 
+  const isPaid = sale?.paymentStatus === 'PAID';
+  const hasExistingItems = (sale?.items?.length ?? 0) > 0;
+
   // Prefill from sale items
   useEffect(() => {
     if (!sale?.items) return;
@@ -63,7 +66,6 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
     setError('');
   }, [sale?.id]);
 
-  const hasExistingItems = (sale?.items?.length ?? 0) > 0;
   const primaryCtaLabel = hasExistingItems ? 'Editar Itens da Venda' : 'Confirmar Itens da Venda';
   const topButtonLabel = hasExistingItems ? 'Editar seleção' : 'Selecionar Produtos';
 
@@ -81,6 +83,7 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
 
   // Products modal
   const openModal = async () => {
+    if (isPaid) return; // UX guard
     setIsOpen(true);
     setError('');
     try {
@@ -143,6 +146,13 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
     (confirmCode.trim().toUpperCase() === 'ATUALIZAR' || confirmCode === saleSuffix);
 
   const reallyConfirmToBackend = async () => {
+    if (isPaid) {
+      setError('Esta venda já está paga. Não é possível alterar os itens.');
+      setConfirmOpen(false);
+      setConfirmChecked(false);
+      setConfirmCode('');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -162,6 +172,7 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
   };
 
   const handlePrimaryCta = async () => {
+    if (isPaid) return;
     if (!hasExistingItems) {
       await reallyConfirmToBackend(); // first time: save directly
       return;
@@ -173,17 +184,26 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
   // UI
   return (
     <div>
+      {/* Warning for paid sales */}
+      {isPaid && (
+        <div className="mb-6 p-4 bg-warning-50 border border-warning-200 rounded-lg text-warning-800">
+          Esta venda já está <strong>paga</strong>. Não é possível alterar os itens de uma venda
+          finalizada.
+        </div>
+      )}
+
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900">Itens da Venda</h2>
-          <p className="mt-2 text-secondary-600">
-            Selecione produtos e quantidades. Primeiro abra o seletor para escolher, depois confirme
-            os itens.
-          </p>
         </div>
 
         {/* Single top-right button (select or edit) */}
-        <button onClick={openModal} className="btn-secondary px-4 py-2">
+        <button
+          onClick={openModal}
+          className="btn-secondary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isPaid}
+          title={isPaid ? 'Venda paga — itens bloqueados' : undefined}
+        >
           {topButtonLabel}
         </button>
       </div>
@@ -224,28 +244,38 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
                       {/* Qty */}
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-secondary-700">Qtd</span>
-                        <div className="flex items-center border border-secondary-300 rounded-lg">
-                          <button
-                            onClick={() => changeQty(it.productId, it.quantity - 1)}
-                            disabled={it.quantity <= 1}
-                            className="px-3 py-2 text-secondary-600 hover:text-secondary-800 disabled:opacity-50"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            min={1}
-                            value={it.quantity}
-                            onChange={(e) => changeQty(it.productId, parseInt(e.target.value) || 1)}
-                            className="w-16 px-2 py-2 text-center border-x border-secondary-300 focus:ring-2 focus:ring-primary-500"
-                          />
-                          <button
-                            onClick={() => changeQty(it.productId, it.quantity + 1)}
-                            className="px-3 py-2 text-secondary-600 hover:text-secondary-800"
-                          >
-                            +
-                          </button>
-                        </div>
+
+                        {/* Read-only qty if paid, otherwise controls */}
+                        {isPaid ? (
+                          <div className="px-3 py-2 rounded-lg border border-secondary-300 bg-secondary-50 min-w-[64px] text-center">
+                            {it.quantity}
+                          </div>
+                        ) : (
+                          <div className="flex items-center border border-secondary-300 rounded-lg">
+                            <button
+                              onClick={() => changeQty(it.productId, it.quantity - 1)}
+                              disabled={it.quantity <= 1}
+                              className="px-3 py-2 text-secondary-600 hover:text-secondary-800 disabled:opacity-50"
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min={1}
+                              value={it.quantity}
+                              onChange={(e) =>
+                                changeQty(it.productId, parseInt(e.target.value) || 1)
+                              }
+                              className="w-16 px-2 py-2 text-center border-x border-secondary-300 focus:ring-2 focus:ring-primary-500"
+                            />
+                            <button
+                              onClick={() => changeQty(it.productId, it.quantity + 1)}
+                              className="px-3 py-2 text-secondary-600 hover:text-secondary-800"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {/* Subtotal */}
@@ -255,13 +285,15 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
                       </div>
 
                       {/* Remove */}
-                      <button
-                        onClick={() => removeItem(it.productId)}
-                        className="p-2 text-danger-600 hover:text-danger-800 hover:bg-danger-50 rounded-lg"
-                        title="Remover item"
-                      >
-                        ✕
-                      </button>
+                      {!isPaid && (
+                        <button
+                          onClick={() => removeItem(it.productId)}
+                          className="p-2 text-danger-600 hover:text-danger-800 hover:bg-danger-50 rounded-lg"
+                          title="Remover item"
+                        >
+                          ✕
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -279,19 +311,21 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
         )}
       </div>
 
-      {/* Footer actions (NO "Editar seleção" here anymore) */}
-      <div className="mt-6 flex items-center justify-end">
-        <button
-          className="btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handlePrimaryCta}
-          disabled={
-            saving || selected.length === 0 || (hasExistingItems && !isChanged) // must change to enable on existing sale
-          }
-          title={hasExistingItems && !isChanged ? 'Nenhuma alteração realizada' : undefined}
-        >
-          {saving ? 'Salvando...' : primaryCtaLabel}
-        </button>
-      </div>
+      {/* Footer actions (hide completely if paid) */}
+      {!isPaid && (
+        <div className="mt-6 flex items-center justify-end">
+          <button
+            className="btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handlePrimaryCta}
+            disabled={
+              saving || selected.length === 0 || (hasExistingItems && !isChanged) // must change to enable on existing sale
+            }
+            title={hasExistingItems && !isChanged ? 'Nenhuma alteração realizada' : undefined}
+          >
+            {saving ? 'Salvando...' : primaryCtaLabel}
+          </button>
+        </div>
+      )}
 
       {/* Error */}
       {error && (
@@ -301,7 +335,7 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
       )}
 
       {/* Products modal */}
-      {isOpen && (
+      {isOpen && !isPaid && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={closeModal} aria-hidden="true" />
           <div className="relative z-10 w-full max-w-5xl bg-white rounded-xl shadow-xl border border-secondary-200">
@@ -442,7 +476,7 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
       )}
 
       {/* Two-step confirmation modal (only on edit of existing sale) */}
-      {confirmOpen && (
+      {confirmOpen && !isPaid && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black/40"

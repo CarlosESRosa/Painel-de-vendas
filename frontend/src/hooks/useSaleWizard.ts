@@ -128,6 +128,9 @@ export function useSaleWizard(saleId?: string) {
 
   const replaceItems = async (items: UpdateSaleItemsData['items']) => {
     if (!sale) throw new Error('Venda não carregada');
+    if (sale.paymentStatus === 'PAID') {
+      throw new Error('Não é possível alterar itens de uma venda paga.');
+    }
     const token = localStorage.getItem('access_token');
     if (!token) throw new Error('Usuário não autenticado');
 
@@ -136,16 +139,13 @@ export function useSaleWizard(saleId?: string) {
     setHasUserNavigated(false); // focus will jump to 'payment'
   };
 
-  // add this in your SalesService if not present yet
+  // Payment processing
   const paySale = async (data: { paymentMethod: string; paymentDate: string }) => {
     if (!sale) throw new Error('Venda não carregada');
     const token = localStorage.getItem('access_token');
     if (!token) throw new Error('Usuário não autenticado');
 
-    // You likely have PATCH /sales/:id/pay in your backend
-    // Implement SalesService.paySale(id, data, token) accordingly.
-    // @ts-ignore
-    await SalesService.paySale?.(sale.id, data, token);
+    await SalesService.paySale(sale.id, data, token);
     await fetchSale(sale.id);
     setHasUserNavigated(false); // focus will jump to 'summary'
   };

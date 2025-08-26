@@ -1,40 +1,23 @@
 import { useMemo, useState } from 'react';
 import type { SaleWithItems } from '../../services/sales.service';
 
-type PaymentMethod =
-  | 'PIX'
-  | 'BOLETO'
-  | 'CREDIT_CARD'
-  | 'DEBIT_CARD'
-  | 'CASH'
-  | 'TRANSFER'
-  | 'OTHER';
+type PaymentMethod = 'PIX' | 'CARTAO' | 'DINHEIRO' | 'BOLETO';
 
 type PaymentForm = {
   paymentMethod: PaymentMethod | '';
   paymentDate: string; // YYYY-MM-DD
-  reference?: string;
-  notes?: string;
 };
 
 type PaymentStepProps = {
   sale: SaleWithItems | null | undefined;
-  onConfirm: (data: {
-    paymentMethod: string;
-    paymentDate: string;
-    reference?: string;
-    notes?: string;
-  }) => Promise<void>;
+  onConfirm: (data: { paymentMethod: string; paymentDate: string }) => Promise<void>;
 };
 
 const METHODS: { value: PaymentMethod; label: string }[] = [
   { value: 'PIX', label: 'PIX' },
-  { value: 'CASH', label: 'Dinheiro' },
-  { value: 'CREDIT_CARD', label: 'Cartão de Crédito' },
-  { value: 'DEBIT_CARD', label: 'Cartão de Débito' },
-  { value: 'TRANSFER', label: 'Transferência' },
+  { value: 'CARTAO', label: 'Cartão (Crédito/Débito)' },
+  { value: 'DINHEIRO', label: 'Dinheiro' },
   { value: 'BOLETO', label: 'Boleto' },
-  { value: 'OTHER', label: 'Outro' },
 ];
 
 const formatBRL = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -49,8 +32,6 @@ export default function PaymentStep({ sale, onConfirm }: PaymentStepProps) {
       paymentDate: sale?.paymentDate
         ? sale.paymentDate.slice(0, 10)
         : new Date().toISOString().slice(0, 10),
-      reference: sale?.paymentReference || '',
-      notes: sale?.notes || '',
     }),
     [sale],
   );
@@ -66,10 +47,7 @@ export default function PaymentStep({ sale, onConfirm }: PaymentStepProps) {
   const total = Number(sale?.totalValue || 0);
 
   const changed =
-    form.paymentMethod !== initial.paymentMethod ||
-    form.paymentDate !== initial.paymentDate ||
-    (form.reference || '') !== (initial.reference || '') ||
-    (form.notes || '') !== (initial.notes || '');
+    form.paymentMethod !== initial.paymentMethod || form.paymentDate !== initial.paymentDate;
 
   const validate = (): string | null => {
     if (!form.paymentMethod) return 'Escolha um método de pagamento.';
@@ -101,8 +79,6 @@ export default function PaymentStep({ sale, onConfirm }: PaymentStepProps) {
       await onConfirm({
         paymentMethod: form.paymentMethod,
         paymentDate: form.paymentDate,
-        reference: form.reference?.trim() || undefined,
-        notes: form.notes?.trim() || undefined,
       });
       setSuccess('Pagamento registrado com sucesso.');
       setEditing(false);
@@ -168,18 +144,7 @@ export default function PaymentStep({ sale, onConfirm }: PaymentStepProps) {
                 {sale?.paymentDate ? new Date(sale.paymentDate).toLocaleDateString('pt-BR') : '-'}
               </div>
             </div>
-            {sale?.paymentReference && (
-              <div className="md:col-span-2">
-                <div className="text-sm text-secondary-600">Referência</div>
-                <div className="text-secondary-900">{sale.paymentReference}</div>
-              </div>
-            )}
-            {sale?.notes && (
-              <div className="md:col-span-2">
-                <div className="text-sm text-secondary-600">Observações</div>
-                <div className="text-secondary-900 whitespace-pre-wrap">{sale.notes}</div>
-              </div>
-            )}
+            {/* Backend doesn't support notes for payment */}
           </div>
         </div>
       )}
@@ -221,30 +186,9 @@ export default function PaymentStep({ sale, onConfirm }: PaymentStepProps) {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-secondary-700 mb-2">
-                  Referência (opcional)
-                </label>
-                <input
-                  className="w-full rounded-lg border border-secondary-300 px-3 py-2 focus:ring-2 focus:ring-primary-500"
-                  placeholder="Ex.: nº transação, comprovante, etc."
-                  value={form.reference || ''}
-                  onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))}
-                />
-              </div>
+              {/* Backend doesn't support reference field for payment */}
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-secondary-700 mb-2">
-                  Observações (opcional)
-                </label>
-                <textarea
-                  rows={4}
-                  className="w-full rounded-lg border border-secondary-300 px-3 py-2 focus:ring-2 focus:ring-primary-500"
-                  placeholder="Alguma observação relevante..."
-                  value={form.notes || ''}
-                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-                />
-              </div>
+              {/* Backend doesn't support notes field for payment */}
             </div>
 
             {/* Totals hint */}

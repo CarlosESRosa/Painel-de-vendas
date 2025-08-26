@@ -145,15 +145,6 @@ export default function SummaryStep({ sale, onBackToItems, onFinish }: SummarySt
                 sale?.paymentDate ? new Date(sale.paymentDate).toLocaleDateString('pt-BR') : '—'
               }
             />
-            <ReadField label="Referência" value={sale?.paymentReference || '—'} />
-            {sale?.notes && (
-              <ReadField
-                className="md:col-span-2"
-                label="Observações"
-                value={sale.notes}
-                multiline
-              />
-            )}
           </div>
         ) : (
           <div className="p-4 rounded-lg border border-warning-200 bg-warning-50 text-warning-900">

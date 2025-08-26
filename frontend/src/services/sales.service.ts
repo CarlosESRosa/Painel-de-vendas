@@ -20,7 +20,7 @@ export interface SaleWithItems {
   notes: string | null;
   totalValue: string;
   paymentStatus: 'PAID' | 'PENDING' | 'CANCELED';
-  paymentMethod: string;
+  paymentMethod: 'PIX' | 'CARTAO' | 'DINHEIRO' | 'BOLETO' | null;
   paymentDate: string | null;
   commissionPercentSnapshot: string;
   commissionValue: string;

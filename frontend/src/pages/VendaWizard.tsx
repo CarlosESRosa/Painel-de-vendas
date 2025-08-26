@@ -37,7 +37,6 @@ const VendaWizard = () => {
     [stageState.map],
   );
 
-  // ---- UI: loading/error ----
   if (loading) {
     return (
       <div className="animate-fade-in">
@@ -115,7 +114,6 @@ const VendaWizard = () => {
 
       {/* Current step content */}
       <div className="bg-white rounded-xl shadow-soft border border-secondary-200 p-8">
-        {/* STEP: CLIENT */}
         {viewStage === 'client' && (
           <ClientStep
             sale={sale}
@@ -125,28 +123,25 @@ const VendaWizard = () => {
           />
         )}
 
-        {/* STEP: ITEMS */}
         {viewStage === 'items' && (
           <ItemsStep
             sale={sale}
             onConfirm={async (items) => {
               try {
                 await replaceItems(items);
-              } catch (error) {
-                console.error('Error updating sale items:', error);
+              } catch (err) {
+                console.error('Error updating sale items:', err);
               }
             }}
           />
         )}
-
-        {/* STEP: PAYMENT (placeholder; call paySale) */}
 
         {viewStage === 'payment' && (
           <PaymentStep
             sale={sale}
             onConfirm={async (data) => {
               try {
-                await paySale(data); // your hook handles token + refetch + auto-advance
+                await paySale(data);
               } catch (e) {
                 console.error('Error confirming payment:', e);
               }
@@ -154,7 +149,6 @@ const VendaWizard = () => {
           />
         )}
 
-        {/* STEP: SUMMARY */}
         {viewStage === 'summary' && (
           <SummaryStep
             sale={sale}
