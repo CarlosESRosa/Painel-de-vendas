@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ClientStep from '../components/steps/ClientStep';
 import ItemsStep from '../components/steps/ItemsStep';
+import PaymentStep from '../components/steps/PaymentStep';
 import { StageCard } from '../components/ui';
 import { useSaleWizard, type StageKey } from '../hooks/useSaleWizard';
 
@@ -138,14 +139,18 @@ const VendaWizard = () => {
         )}
 
         {/* STEP: PAYMENT (placeholder; call paySale) */}
+
         {viewStage === 'payment' && (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-secondary-900">Pagamento</h2>
-            <p className="text-secondary-600 mt-2">Confirmar método e data do pagamento.</p>
-            {/* Example when wiring:
-                <PaymentStep onConfirm={(data) => paySale(data)} />
-            */}
-          </div>
+          <PaymentStep
+            sale={sale}
+            onConfirm={async (data) => {
+              try {
+                await paySale(data); // your hook handles token + refetch + auto-advance
+              } catch (e) {
+                console.error('Error confirming payment:', e);
+              }
+            }}
+          />
         )}
 
         {/* STEP: SUMMARY */}
