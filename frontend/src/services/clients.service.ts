@@ -72,9 +72,12 @@ export class ClientsService {
 
   // Listar clientes
   static async getClients(
+    query: {
+      page?: number;
+      perPage?: number;
+      q?: string; // Backend expects 'q' for search
+    },
     token: string,
-    page = 1,
-    perPage = 15,
   ): Promise<{
     items: Client[];
     page: number;
@@ -83,13 +86,19 @@ export class ClientsService {
     totalPages: number;
   }> {
     try {
+      const params = new URLSearchParams();
+
+      if (query.page) params.append('page', query.page.toString());
+      if (query.perPage) params.append('perPage', query.perPage.toString());
+      if (query.q) params.append('q', query.q);
+
       const response = await api.authGet<{
         items: Client[];
         page: number;
         perPage: number;
         total: number;
         totalPages: number;
-      }>(`${this.CLIENTS_ENDPOINT}?page=${page}&perPage=${perPage}`, token);
+      }>(`${this.CLIENTS_ENDPOINT}?${params.toString()}`, token);
       return response;
     } catch (error) {
       if (error instanceof Error) {
