@@ -70,6 +70,16 @@ export class ClientsService {
     }
   }
 
+  static async getClientById(id: string, token: string): Promise<Client> {
+    try {
+      const response = await api.authGet<Client>(`${this.CLIENTS_ENDPOINT}/${id}`, token);
+      return response;
+    } catch (error) {
+      if (error instanceof Error) throw error;
+      throw new Error('Erro ao carregar cliente');
+    }
+  }
+
   // Listar clientes
   static async getClients(
     query: {

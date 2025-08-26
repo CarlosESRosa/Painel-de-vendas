@@ -2,6 +2,7 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import ClienteEditar from './pages/ClienteEditar';
 import Clientes from './pages/Clientes';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -26,6 +27,7 @@ function AppRoutes() {
         <Route path="/vendas/nova" element={<VendaWizard key="nova" />} />
         <Route path="/vendas/editar/:id" element={<VendaWizard key="editar" />} />
         <Route path="clientes" element={<Clientes />} />
+        <Route path="clientes/editar/:id" element={<ClienteEditar />} />
         <Route path="vendedores" element={<Vendedores />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
