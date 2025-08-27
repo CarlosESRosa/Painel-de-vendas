@@ -47,10 +47,22 @@ export class AuthService {
 
   // Validar token (verificar se ainda é válido)
   static async validateToken(token: string): Promise<boolean> {
+    if (!token || token.trim() === '') {
+      return false;
+    }
+
     try {
+      // Verificar se o token tem formato válido
+      if (token.length < 10) {
+        return false;
+      }
+
+      // Tentar obter o perfil do usuário para validar o token
       await this.getProfile(token);
       return true;
     } catch (error) {
+      // Se houver qualquer erro, considerar o token inválido
+      console.warn('Token validation failed:', error);
       return false;
     }
   }

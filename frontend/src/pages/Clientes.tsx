@@ -6,6 +6,7 @@ import Table from '../components/ui/Table';
 import { useDebounce } from '../hooks/useDebounce';
 import { ClientsService } from '../services/clients.service';
 import type { Client, ClientsFilters, ClientsQuery } from '../types/clients.types';
+import { getAuthToken } from '../utils/auth';
 
 const Clientes = () => {
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ const Clientes = () => {
       setLoading(true);
       setError('');
 
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) throw new Error('Token não encontrado');
 
       const query: ClientsQuery = {

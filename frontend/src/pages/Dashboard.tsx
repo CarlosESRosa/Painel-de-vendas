@@ -20,6 +20,7 @@ import DatePicker from '../components/ui/DatePicker';
 import Tabs from '../components/ui/Tabs';
 import { SalesService } from '../services/sales.service';
 import type { Sale } from '../types/sales.types';
+import { getAuthToken } from '../utils/auth';
 
 /* -------------------------------- Helpers -------------------------------- */
 
@@ -223,7 +224,7 @@ const Dashboard = () => {
 
   const loadStatusCounts = useCallback(async (range: DateRange) => {
     try {
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) return;
 
       // Ensure dates are properly formatted for backend
@@ -236,7 +237,8 @@ const Dashboard = () => {
       const counts = await SalesService.getStatusCounts(params, token);
       console.log('Dashboard - Status counts response:', counts);
       setStatusCounts(counts);
-    } catch {
+    } catch (error) {
+      console.error('Erro ao carregar contadores de status:', error);
       setStatusCounts({ total: 0, paid: 0, pending: 0, canceled: 0 });
     }
   }, []);
@@ -246,7 +248,7 @@ const Dashboard = () => {
       try {
         setLoading(true);
         setError('');
-        const token = localStorage.getItem('access_token');
+        const token = getAuthToken();
         if (!token) throw new Error('Token não encontrado');
 
         const perPage = 100;

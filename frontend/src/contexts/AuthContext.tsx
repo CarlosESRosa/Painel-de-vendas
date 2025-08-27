@@ -1,37 +1,25 @@
 import type { ReactNode } from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { AuthService } from '../services/auth.service';
 import type { UserProfile } from '../types/api.types';
-
-interface User extends UserProfile {
-  // Mantendo compatibilidade com a interface existente
-}
+import { clearAuthData, getAuthToken } from '../utils/auth';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  demoLogin: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const isAuthenticated = !!user;
@@ -43,14 +31,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Chamada real para a API
       const response = await AuthService.signIn({ email, password });
 
-      // Salvar token no localStorage
-      localStorage.setItem('access_token', response.access_token);
+      // Salvar token no sessionStorage (será limpo quando a aba for fechada)
+      sessionStorage.setItem('access_token', response.access_token);
 
       // Obter perfil do usuário
       const userProfile = await AuthService.getProfile(response.access_token);
 
       // Converter para o formato interno
-      const user: User = {
+      const user: UserProfile = {
         id: userProfile.id,
         name: userProfile.name,
         email: userProfile.email,
@@ -59,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       };
 
       setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('user', JSON.stringify(user));
       return true;
     } catch (error) {
       console.error('Erro no login:', error);
@@ -69,30 +57,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const demoLogin = () => {
-    const mockUser: User = {
-      id: 'demo',
-      name: 'Usuário Demo',
-      email: 'demo@painel.com',
-      role: 'ADMIN',
-      status: 'ACTIVE',
-    };
-
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-  };
-
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('access_token');
+    clearAuthData();
   };
 
-  // Verificar se há usuário salvo no localStorage ao inicializar
+  // Verificar se há usuário salvo no sessionStorage ao inicializar
   useEffect(() => {
     const initializeAuth = async () => {
-      const savedUser = localStorage.getItem('user');
-      const savedToken = localStorage.getItem('access_token');
+      const savedUser = sessionStorage.getItem('user');
+      const savedToken = getAuthToken();
 
       if (savedUser && savedToken) {
         try {
@@ -103,18 +77,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setUser(JSON.parse(savedUser));
           } else {
             // Token expirado, limpar dados
-            localStorage.removeItem('user');
-            localStorage.removeItem('access_token');
+            clearAuthData();
           }
         } catch (error) {
           console.error('Erro ao validar token:', error);
-          localStorage.removeItem('user');
-          localStorage.removeItem('access_token');
+          clearAuthData();
         }
       }
     };
 
     initializeAuth();
+
+    // Adicionar event listeners para limpar dados quando a aba for fechada ou atualizada
+    const handleBeforeUnload = () => {
+      // Limpar dados sensíveis antes de fechar/atualizar
+      clearAuthData();
+    };
+
+    const handleVisibilityChange = () => {
+      // Se a aba ficar oculta por muito tempo, considerar limpar dados
+      if (document.hidden) {
+        // Opcional: implementar timeout para limpar dados após período de inatividade
+        console.log('Aba oculta - considerando limpeza de dados');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const value: AuthContextType = {
@@ -123,8 +117,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isLoading,
     login,
     logout,
-    demoLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export { AuthContext };

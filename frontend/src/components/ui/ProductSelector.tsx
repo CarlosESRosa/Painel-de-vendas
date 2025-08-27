@@ -2,6 +2,7 @@ import { MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/reac
 import { useEffect, useState } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
 import { ProductsService, type Product } from '../../services/products.service';
+import { getAuthToken } from '../../utils/auth';
 
 interface ProductSelectorProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ const ProductSelector = ({
       // Buscar informações completas dos produtos
       const loadProductDetails = async () => {
         try {
-          const token = localStorage.getItem('access_token');
+          const token = getAuthToken();
           if (!token) return;
 
           const productPromises = currentItems.map(async (item) => {
@@ -88,7 +89,7 @@ const ProductSelector = ({
 
       setLoading(true);
       try {
-        const token = localStorage.getItem('access_token');
+        const token = getAuthToken();
         if (!token) return;
 
         const response = await ProductsService.getProducts(

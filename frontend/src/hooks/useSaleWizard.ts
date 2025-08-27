@@ -6,6 +6,7 @@ import {
   type SaleWithItems,
   type UpdateSaleItemsData,
 } from '../services/sales.service';
+import { getAuthToken } from '../utils/auth';
 
 export type StageKey = 'client' | 'items' | 'payment' | 'summary';
 
@@ -20,7 +21,7 @@ export function useSaleWizard(saleId?: string) {
 
   // ---- load or refetch sale ----
   const fetchSale = async (id: string) => {
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     if (!token) throw new Error('Token não encontrado');
     const data = await SalesService.getSaleById(id, token);
     setSale(data);
@@ -101,7 +102,7 @@ export function useSaleWizard(saleId?: string) {
 
   // ---- actions (all handle token & refetch/advance implicitly) ----
   const createClientAndSale = async (clientData: CreateClientData) => {
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     if (!token) throw new Error('Usuário não autenticado');
 
     const newClient = await ClientsService.createClient(clientData, token);
@@ -119,7 +120,7 @@ export function useSaleWizard(saleId?: string) {
 
   const updateClient = async (clientData: CreateClientData) => {
     if (!sale) throw new Error('Venda não carregada');
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     if (!token) throw new Error('Usuário não autenticado');
 
     await ClientsService.updateClient(sale.client.id, clientData, token);
@@ -131,7 +132,7 @@ export function useSaleWizard(saleId?: string) {
     if (sale.paymentStatus === 'PAID') {
       throw new Error('Não é possível alterar itens de uma venda paga.');
     }
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     if (!token) throw new Error('Usuário não autenticado');
 
     await SalesService.updateSaleItems(sale.id, { items }, token);
@@ -142,7 +143,7 @@ export function useSaleWizard(saleId?: string) {
   // Payment processing
   const paySale = async (data: { paymentMethod: string; paymentDate: string }) => {
     if (!sale) throw new Error('Venda não carregada');
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     if (!token) throw new Error('Usuário não autenticado');
 
     await SalesService.paySale(sale.id, data, token);

@@ -14,6 +14,7 @@ import {
   PAYMENT_STATUS_COLORS,
   PAYMENT_STATUS_LABELS,
 } from '../types/sales.types';
+import { getAuthToken } from '../utils/auth';
 
 const Vendas = () => {
   const navigate = useNavigate();
@@ -156,7 +157,7 @@ const Vendas = () => {
       setLoading(true);
       setError('');
 
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) {
         throw new Error('Token não encontrado');
       }
@@ -196,7 +197,7 @@ const Vendas = () => {
 
   // Carregar contadores de status baseado nos filtros atuais (precisos)
   const loadStatusCounts = useCallback(async (queryFilters?: SalesFilters) => {
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     if (!token) return;
 
     try {

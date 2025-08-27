@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import VendorForm, { type VendorFormData } from '../components/forms/VendorForm';
 import { SellersService } from '../services/sellers.service';
 import type { Seller } from '../types/sellers.types';
+import { getAuthToken } from '../utils/auth';
 
 const FIELDS = [
   { key: 'name', label: 'Nome completo' },
@@ -17,28 +18,31 @@ const VendedorEditar = () => {
 
   const [seller, setSeller] = useState<Seller | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    const load = async () => {
+    const loadSeller = async () => {
       try {
         setLoading(true);
         setError('');
-        const token = localStorage.getItem('access_token');
+        const token = getAuthToken();
         if (!token) throw new Error('Token não encontrado');
         if (!id) throw new Error('ID do vendedor não informado');
         const data = await SellersService.getSellerById(id, token);
         setSeller(data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Erro ao carregar vendedor');
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Erro ao carregar dados do vendedor');
+        }
       } finally {
         setLoading(false);
       }
     };
-    load();
+    loadSeller();
   }, [id]);
 
   const initialData = useMemo<Partial<VendorFormData>>(() => {
@@ -52,22 +56,24 @@ const VendedorEditar = () => {
   const val = (key: (typeof FIELDS)[number]['key']) =>
     seller ? seller[key as keyof Seller] || '' : '';
 
-  const handleUpdate = async (data: VendorFormData) => {
+  const handleSubmit = async (data: VendorFormData) => {
     if (!seller) return;
+
     try {
-      setSaving(true);
       setError('');
       setSuccess('');
-      const token = localStorage.getItem('access_token');
+      const token = getAuthToken();
       if (!token) throw new Error('Token não encontrado');
       const updated = await SellersService.updateSeller(seller.id, data, token);
       setSeller(updated);
       setSuccess('Vendedor atualizado com sucesso.');
       setEditing(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao atualizar vendedor');
-    } finally {
-      setSaving(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Erro ao atualizar vendedor');
+      }
     }
   };
 
@@ -123,8 +129,8 @@ const VendedorEditar = () => {
 
         {editing ? (
           <VendorForm
-            onSubmit={handleUpdate}
-            loading={saving}
+            onSubmit={handleSubmit}
+            loading={false} // Removed saving state
             initialData={initialData}
             isEditing={true}
             onCancel={() => {
