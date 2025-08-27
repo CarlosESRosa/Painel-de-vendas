@@ -18,11 +18,14 @@ export default function SummaryStep({ sale, onBackToItems, onFinish }: SummarySt
   );
   const total = Number(sale?.totalValue || 0);
 
+  // Extract client with proper typing
+  const client = sale?.client;
+
   return (
     <div className="space-y-8">
       {/* Header badge row */}
       <div className="flex flex-wrap items-center gap-3">
-        <StatusBadge label="Cliente" ok={!!sale?.client?.id} />
+        <StatusBadge label="Cliente" ok={!!client?.id} />
         <StatusBadge label="Itens" ok={items.length > 0 && total > 0} />
         <StatusBadge label="Pagamento" ok={sale?.paymentStatus === 'PAID'} />
         <div className="ml-auto text-sm text-secondary-600">
@@ -63,16 +66,16 @@ export default function SummaryStep({ sale, onBackToItems, onFinish }: SummarySt
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ReadField label="Nome completo" value={sale?.client?.name} />
-          <ReadField label="CPF" value={sale?.client?.cpf} />
-          <ReadField label="Email" value={sale?.client?.email} />
-          <ReadField label="Telefone" value={sale?.client?.phone} />
-          <ReadField label="CEP" value={sale?.client?.cep} />
-          <ReadField label="Cidade" value={sale?.client?.city} />
-          <ReadField label="Bairro" value={sale?.client?.neighborhood} />
-          <ReadField label="Estado" value={sale?.client?.state} />
-          <ReadField className="md:col-span-2" label="Rua" value={sale?.client?.street} />
-          <ReadField label="Número" value={sale?.client?.number} />
+          <ReadField label="Nome completo" value={client?.name} />
+          <ReadField label="CPF" value={client?.cpf} />
+          <ReadField label="Email" value={client?.email} />
+          <ReadField label="Telefone" value={client?.phone} />
+          <ReadField label="CEP" value={client?.cep} />
+          <ReadField label="Cidade" value={client?.city} />
+          <ReadField label="Bairro" value={client?.neighborhood} />
+          <ReadField label="Estado" value={client?.state} />
+          <ReadField className="md:col-span-2" label="Rua" value={client?.street} />
+          <ReadField label="Número" value={client?.number} />
         </div>
       </section>
 
