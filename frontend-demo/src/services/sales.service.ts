@@ -38,6 +38,16 @@ export interface SaleWithItems {
     id: string;
     name: string;
     cpf: string;
+    email: string;
+    phone: string;
+    cep: string;
+    city: string;
+    neighborhood: string;
+    street: string;
+    number: string;
+    state: string;
+    createdAt: string;
+    updatedAt: string;
   };
   items: SaleItem[];
 }

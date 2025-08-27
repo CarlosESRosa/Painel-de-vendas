@@ -229,24 +229,6 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
     });
   };
 
-  const isDateInRange = (date: Date) => {
-    if (!tempRange) return false;
-    const dateStr = date.toLocaleDateString('en-CA');
-    return dateStr >= tempRange.start && dateStr <= tempRange.end;
-  };
-
-  const isDateStart = (date: Date) => {
-    if (!tempRange) return false;
-    const dateStr = date.toLocaleDateString('en-CA');
-    return dateStr === tempRange.start;
-  };
-
-  const isDateEnd = (date: Date) => {
-    if (!tempRange) return false;
-    const dateStr = date.toLocaleDateString('en-CA');
-    return dateStr === tempRange.end;
-  };
-
   const formatDisplayValue = () => {
     if (!selectedRange) return placeholder || 'Selecione uma data';
 
@@ -259,11 +241,6 @@ const DatePicker = ({ value, onChange, label, placeholder, className = '' }: Dat
     // Converter strings YYYY-MM-DD para Date e formatar para pt-BR
     const startDate = new Date(selectedRange.start + 'T00:00:00').toLocaleDateString('pt-BR');
     const endDate = new Date(selectedRange.end + 'T00:00:00').toLocaleDateString('pt-BR');
-
-    // Calcular quantos dias tem o intervalo
-    const start = new Date(selectedRange.start + 'T00:00:00');
-    const end = new Date(selectedRange.end + 'T00:00:00');
-    const daysDiff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
     return `${startDate} - ${endDate}`;
   };

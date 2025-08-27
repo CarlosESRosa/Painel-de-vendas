@@ -160,6 +160,22 @@ export default function SummaryStep({ sale, onBackToItems, onFinish }: SummarySt
           <span className="font-medium text-secondary-900">{sale?.id?.slice?.(-8) ?? '—'}</span>
         </div>
         <div className="flex items-center gap-3">
+          {onBackToItems && (
+            <button
+              className="px-4 py-2 rounded-lg border border-secondary-300 text-secondary-700 hover:bg-secondary-100"
+              onClick={onBackToItems}
+            >
+              ← Voltar aos Itens
+            </button>
+          )}
+          {onFinish && (
+            <button
+              className="px-4 py-2 rounded-lg border border-primary-600 text-primary-700 hover:bg-primary-50"
+              onClick={onFinish}
+            >
+              Finalizar Venda
+            </button>
+          )}
           <button
             className="px-4 py-2 rounded-lg border border-secondary-300 text-secondary-700 hover:bg-secondary-100"
             onClick={() => window.print()}
