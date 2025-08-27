@@ -177,10 +177,14 @@ export class SalesService {
 
     if (start || end) {
       where.date = {};
-      if (start) where.date.gte = new Date(start);
+      if (start) {
+        // Parse date in local timezone to avoid timezone issues
+        const startDate = new Date(start + 'T00:00:00');
+        where.date.gte = startDate;
+      }
       if (end) {
-        const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999);
+        // Parse date in local timezone and set to end of day
+        const endDate = new Date(end + 'T23:59:59.999');
         where.date.lte = endDate;
       }
     }
@@ -228,10 +232,14 @@ export class SalesService {
 
     if (start || end) {
       where.date = {};
-      if (start) where.date.gte = new Date(start);
+      if (start) {
+        // Parse date in local timezone to avoid timezone issues
+        const startDate = new Date(start + 'T00:00:00');
+        where.date.gte = startDate;
+      }
       if (end) {
-        const endDate = new Date(end);
-        endDate.setHours(23, 59, 59, 999);
+        // Parse date in local timezone and set to end of day
+        const endDate = new Date(end + 'T23:59:59.999');
         where.date.lte = endDate;
       }
     }
