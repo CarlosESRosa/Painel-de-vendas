@@ -414,12 +414,6 @@ const Dashboard = () => {
           <p className="mt-2 text-secondary-600">Visão geral do seu painel de vendas</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="btn-secondary" onClick={() => navigate('/clientes')}>
-            Ver Clientes
-          </button>
-          <button className="btn-secondary" onClick={() => navigate('/vendas')}>
-            Ver Vendas
-          </button>
           <button className="btn-primary" onClick={() => navigate('/vendas/nova')}>
             Nova Venda
           </button>

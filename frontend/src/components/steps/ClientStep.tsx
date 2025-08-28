@@ -133,27 +133,17 @@ const ClientStep = ({ sale, createClientAndSale, updateClient, onCreated }: Clie
       </div>
 
       {editing ? (
-        <>
-          <ClientForm
-            onSubmit={handleUpdate}
-            loading={loading}
-            initialData={initialData}
-            isEditing={true}
-          />
-          <div className="mt-4 flex items-center gap-3">
-            <button
-              className="px-4 py-2 rounded-lg border border-secondary-300 text-secondary-700 hover:bg-secondary-100"
-              onClick={() => {
-                setEditing(false);
-                setError('');
-                setSuccess('');
-              }}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-          </div>
-        </>
+        <ClientForm
+          onSubmit={handleUpdate}
+          loading={loading}
+          initialData={initialData}
+          isEditing={true}
+          onCancel={() => {
+            setEditing(false);
+            setError('');
+            setSuccess('');
+          }}
+        />
       ) : (
         // READ-ONLY “disabled form” look
         <div className="space-y-6">
