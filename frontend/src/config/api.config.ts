@@ -1,7 +1,7 @@
 // Configurações da API
 export const API_CONFIG = {
   // URL base da API
-  BASE_URL: import.meta.env.PROD ? 'https://sua-api-producao.com' : 'http://localhost:3001',
+  BASE_URL: import.meta.env.PROD ? 'https://sua-api-producao.com' : 'http://localhost:3000',
 
   // Timeout das requisições (em ms)
   TIMEOUT: 10000,
