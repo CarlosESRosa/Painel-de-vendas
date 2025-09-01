@@ -38,8 +38,7 @@ Este é um projeto full-stack para gestão completa de vendas, clientes e comiss
 ```
 .
 ├── sales-api/          # Backend NestJS + TypeScript
-├── frontend/           # Frontend React + TypeScript
-└── start-dev.sh        # Script de inicialização automática
+└── frontend/           # Frontend React + TypeScript
 ```
 
 ## 🚀 Rodando o Projeto
@@ -51,43 +50,20 @@ git clone https://github.com/seu-usuario/painel-de-vendas.git
 cd painel-de-vendas
 ```
 
-### 2. Inicie tudo automaticamente:
-
-```bash
-chmod +x start-dev.sh
-./start-dev.sh
-```
-
-Isso irá:
-
-- Instalar dependências do backend e frontend
-- Configurar o banco de dados SQLite
-- Iniciar o backend na porta 3000
-- Iniciar o frontend na porta 5173
-
-## 💻 Rodando Manualmente
-
-### Backend
-
-1. Configure as variáveis de ambiente (copie .env.example para .env):
+### 2. Configure o Backend:
 
 ```bash
 cd sales-api
 cp .env.example .env
-```
-
-2. Execute o backend:
-
-```bash
 npm install
 npx prisma generate
 npx prisma db push
 npm run start:dev
 ```
 
-### Frontend
+### 3. Configure o Frontend:
 
-1. Em um novo terminal:
+Em um novo terminal:
 
 ```bash
 cd frontend
@@ -171,6 +147,7 @@ npm run dev
    - Confirme se a URL da API está correta em `frontend/src/config/api.config.ts`
 
 3. Se as dependências não instalarem:
+
    - Delete `node_modules` e `package-lock.json`
    - Execute `npm install` novamente
 
