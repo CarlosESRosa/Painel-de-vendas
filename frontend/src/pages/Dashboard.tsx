@@ -1,3 +1,4 @@
+import { PlusIcon } from '@heroicons/react/24/outline';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -220,6 +221,10 @@ const Dashboard = () => {
     }
   }, [dateRange]);
 
+  const handleNovaVenda = () => {
+    navigate('/vendas/nova');
+  };
+
   /* --------------------------- data fetching --------------------------- */
 
   const loadStatusCounts = useCallback(async (range: DateRange) => {
@@ -414,8 +419,9 @@ const Dashboard = () => {
           <p className="mt-2 text-secondary-600">Visão geral do seu painel de vendas</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="btn-primary" onClick={() => navigate('/vendas/nova')}>
-            Nova Venda
+          <button className="btn-primary flex items-center space-x-2" onClick={handleNovaVenda}>
+            <PlusIcon className="w-5 h-5" />
+            <span>Nova Venda</span>
           </button>
         </div>
       </div>

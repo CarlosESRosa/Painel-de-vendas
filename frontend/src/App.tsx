@@ -6,6 +6,7 @@ import ClienteEditar from './pages/ClienteEditar';
 import Clientes from './pages/Clientes';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import UIDoc from './pages/UIDoc';
 import Vendas from './pages/Vendas';
 import VendaWizard from './pages/VendaWizard';
 import VendedorEditar from './pages/VendedorEditar';
@@ -31,6 +32,7 @@ function AppRoutes() {
         <Route path="clientes/editar/:id" element={<ClienteEditar />} />
         <Route path="vendedores" element={<Vendedores />} />
         <Route path="vendedores/editar/:id" element={<VendedorEditar />} />
+        <Route path="/doc/ui" element={<UIDoc />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

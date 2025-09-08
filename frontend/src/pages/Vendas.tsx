@@ -50,7 +50,7 @@ const Vendas = () => {
   // Debounce para o filtro de nome do cliente (meio segundo)
   const debouncedClientName = useDebounce(filters.clientName, 500);
 
-  // Tabs de status de pagamento com contadores dinâmicos (afetados pelos filtros)
+  // Tabs de status de pagamento com contadores dinâmicos
   const paymentStatusTabs = [
     {
       id: 'ALL',
@@ -151,7 +151,7 @@ const Vendas = () => {
     },
   ];
 
-  // Carregar vendas com filtros otimizados
+  // Carregar vendas com filtros
   const loadSales = useCallback(async (queryFilters: SalesFilters) => {
     try {
       setLoading(true);
@@ -278,12 +278,10 @@ const Vendas = () => {
   };
 
   const handleRowClick = (sale: Sale) => {
-    // Navega para a tela de editar venda
     navigate(`/vendas/editar/${sale.id}`);
   };
 
   const handleNovaVenda = () => {
-    // Navega para a tela de nova venda
     navigate('/vendas/nova');
   };
 
@@ -303,13 +301,11 @@ const Vendas = () => {
 
   return (
     <div className="animate-fade-in">
-      {/* Header da página */}
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-secondary-900">Vendas</h1>
           <p className="mt-2 text-secondary-600">Gerencie todas as vendas do sistema</p>
         </div>
-        {/* Botão nova venda */}
         <button className="btn-primary flex items-center space-x-2" onClick={handleNovaVenda}>
           <PlusIcon className="w-5 h-5" />
           <span>Nova Venda</span>

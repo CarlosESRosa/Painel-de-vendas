@@ -43,12 +43,7 @@ Este é um projeto full-stack para gestão completa de vendas, clientes e comiss
 
 ## 🚀 Rodando o Projeto
 
-### 1. Clone o repositório:
-
-```bash
-git clone https://github.com/seu-usuario/painel-de-vendas.git
-cd painel-de-vendas
-```
+### 1. Clone o repositório
 
 ### 2. Configure o Backend:
 
@@ -58,6 +53,7 @@ cp .env.example .env
 npm install
 npx prisma generate
 npx prisma db push
+npm run seed
 npm run start:dev
 ```
 
