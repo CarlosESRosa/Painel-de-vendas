@@ -6,7 +6,6 @@ import {
   type SaleWithItems,
   type UpdateSaleItemsData,
 } from '../services/sales.service';
-import { getAuthToken } from '../utils/auth';
 
 export type StageKey = 'client' | 'items' | 'payment' | 'summary';
 
@@ -21,9 +20,7 @@ export function useSaleWizard(saleId?: string) {
 
   // ---- load or refetch sale ----
   const fetchSale = async (id: string) => {
-    const token = getAuthToken();
-    if (!token) throw new Error('Token não encontrado');
-    const data = await SalesService.getSaleById(id, token);
+    const data = await SalesService.getSaleById(id);
     setSale(data);
     return data;
   };
@@ -102,14 +99,11 @@ export function useSaleWizard(saleId?: string) {
 
   // ---- actions (all handle token & refetch/advance implicitly) ----
   const createClientAndSale = async (clientData: CreateClientData) => {
-    const token = getAuthToken();
-    if (!token) throw new Error('Usuário não autenticado');
-
-    const newClient = await ClientsService.createClient(clientData, token);
-    const newSale = await SalesService.createSale(
-      { clientId: newClient.id, notes: `Venda criada para ${newClient.name}` },
-      token,
-    );
+    const newClient = await ClientsService.createClient(clientData);
+    const newSale = await SalesService.createSale({
+      clientId: newClient.id,
+      notes: `Venda criada para ${newClient.name}`,
+    });
 
     // Fetch the full sale data after creation
     const fullSale = await fetchSale(newSale.id);
@@ -120,10 +114,8 @@ export function useSaleWizard(saleId?: string) {
 
   const updateClient = async (clientData: CreateClientData) => {
     if (!sale) throw new Error('Venda não carregada');
-    const token = getAuthToken();
-    if (!token) throw new Error('Usuário não autenticado');
 
-    await ClientsService.updateClient(sale.client.id, clientData, token);
+    await ClientsService.updateClient(sale.client.id, clientData);
     await fetchSale(sale.id);
   };
 
@@ -132,10 +124,8 @@ export function useSaleWizard(saleId?: string) {
     if (sale.paymentStatus === 'PAID') {
       throw new Error('Não é possível alterar itens de uma venda paga.');
     }
-    const token = getAuthToken();
-    if (!token) throw new Error('Usuário não autenticado');
 
-    await SalesService.updateSaleItems(sale.id, { items }, token);
+    await SalesService.updateSaleItems(sale.id, { items });
     await fetchSale(sale.id); // recalc totals
     setHasUserNavigated(false); // focus will jump to 'payment'
   };
@@ -143,10 +133,8 @@ export function useSaleWizard(saleId?: string) {
   // Payment processing
   const paySale = async (data: { paymentMethod: string; paymentDate: string }) => {
     if (!sale) throw new Error('Venda não carregada');
-    const token = getAuthToken();
-    if (!token) throw new Error('Usuário não autenticado');
 
-    await SalesService.paySale(sale.id, data, token);
+    await SalesService.paySale(sale.id, data);
     await fetchSale(sale.id);
     setHasUserNavigated(false); // focus will jump to 'summary'
   };

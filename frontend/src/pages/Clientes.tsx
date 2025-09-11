@@ -6,7 +6,6 @@ import Table from '../components/ui/Table';
 import { useDebounce } from '../hooks/useDebounce';
 import { ClientsService } from '../services/clients.service';
 import type { Client, ClientsFilters, ClientsQuery } from '../types/clients.types';
-import { getAuthToken } from '../utils/auth';
 
 const Clientes = () => {
   const navigate = useNavigate();
@@ -81,16 +80,13 @@ const Clientes = () => {
       setLoading(true);
       setError('');
 
-      const token = getAuthToken();
-      if (!token) throw new Error('Token não encontrado');
-
       const query: ClientsQuery = {
         page: f.page,
         perPage: f.perPage,
         q: f.search || undefined, // Backend expects 'q' for search
       };
 
-      const res = await ClientsService.getClients(query, token);
+      const res = await ClientsService.getClients(query);
 
       setClients(res.items);
       setPagination({

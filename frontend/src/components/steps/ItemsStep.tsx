@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ProductsService } from '../../services/products.service';
 import type { SaleWithItems } from '../../services/sales.service';
-import { getAuthToken } from '../../utils/auth';
 
 type Product = {
   id: string;
@@ -89,12 +88,11 @@ export default function ItemsStep({ sale, onConfirm }: ItemsStepProps) {
     setError('');
     try {
       setLoadingProducts(true);
-      const token = getAuthToken();
-      if (!token) throw new Error('Usuário não autenticado');
-      const data = await ProductsService.getProducts(
-        { page: 1, perPage: 100, isActive: true },
-        token,
-      );
+      const data = await ProductsService.getProducts({
+        page: 1,
+        perPage: 100,
+        isActive: true,
+      });
       setProducts(data.items || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao carregar produtos');

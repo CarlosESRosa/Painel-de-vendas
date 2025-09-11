@@ -1,5 +1,5 @@
+import { http } from '../api/http';
 import type { SalesQuery, SalesResponse } from '../types/sales.types';
-import { api } from './api';
 
 export interface SaleItem {
   id: string;
@@ -62,7 +62,7 @@ export interface UpdateSaleItemsData {
 export class SalesService {
   private static readonly SALES_ENDPOINT = '/sales';
 
-  static async getSales(query: SalesQuery, token: string): Promise<SalesResponse> {
+  static async getSales(query: SalesQuery): Promise<SalesResponse> {
     const params = new URLSearchParams();
 
     if (query.page) params.append('page', query.page.toString());
@@ -74,18 +74,15 @@ export class SalesService {
       params.append('paymentStatus', query.paymentStatus);
     }
 
-    const response = await api.authGet<SalesResponse>(
-      `${this.SALES_ENDPOINT}?${params.toString()}`,
-      token,
-    );
-    return response;
+    const response = await http.get<SalesResponse>(`${this.SALES_ENDPOINT}?${params.toString()}`);
+    return response.data;
   }
 
   // Obter venda por ID com itens
-  static async getSaleById(id: string, token: string): Promise<SaleWithItems> {
+  static async getSaleById(id: string): Promise<SaleWithItems> {
     try {
-      const response = await api.authGet<SaleWithItems>(`${this.SALES_ENDPOINT}/${id}`, token);
-      return response;
+      const response = await http.get<SaleWithItems>(`${this.SALES_ENDPOINT}/${id}`);
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -95,13 +92,10 @@ export class SalesService {
   }
 
   // Criar nova venda
-  static async createSale(
-    saleData: { clientId: string; notes?: string },
-    token: string,
-  ): Promise<{ id: string }> {
+  static async createSale(saleData: { clientId: string; notes?: string }): Promise<{ id: string }> {
     try {
-      const response = await api.authPost<{ id: string }>(this.SALES_ENDPOINT, token, saleData);
-      return response;
+      const response = await http.post<{ id: string }>(this.SALES_ENDPOINT, saleData);
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -111,18 +105,13 @@ export class SalesService {
   }
 
   // Atualizar itens da venda
-  static async updateSaleItems(
-    id: string,
-    itemsData: UpdateSaleItemsData,
-    token: string,
-  ): Promise<SaleWithItems> {
+  static async updateSaleItems(id: string, itemsData: UpdateSaleItemsData): Promise<SaleWithItems> {
     try {
-      const response = await api.authPatch<SaleWithItems>(
+      const response = await http.patch<SaleWithItems>(
         `${this.SALES_ENDPOINT}/${id}/items`,
-        token,
         itemsData,
       );
-      return response;
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -132,14 +121,11 @@ export class SalesService {
   }
 
   // Obter contadores de status de vendas (precisos, sem paginação)
-  static async getStatusCounts(
-    query: {
-      clientName?: string;
-      startDate?: string;
-      endDate?: string;
-    },
-    token: string,
-  ): Promise<{
+  static async getStatusCounts(query: {
+    clientName?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<{
     total: number;
     paid: number;
     pending: number;
@@ -152,14 +138,14 @@ export class SalesService {
       if (query.startDate) params.append('start', query.startDate);
       if (query.endDate) params.append('end', query.endDate);
 
-      const response = await api.authGet<{
+      const response = await http.get<{
         total: number;
         paid: number;
         pending: number;
         canceled: number;
-      }>(`${this.SALES_ENDPOINT}/counts/status?${params.toString()}`, token);
+      }>(`${this.SALES_ENDPOINT}/counts/status?${params.toString()}`);
 
-      return response;
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -169,14 +155,10 @@ export class SalesService {
   }
 
   // Atualizar venda
-  static async updateSale(
-    id: string,
-    saleData: Partial<{ notes: string; clientId: string }>,
-    token: string,
-  ) {
+  static async updateSale(id: string, saleData: Partial<{ notes: string; clientId: string }>) {
     try {
-      const response = await api.authPut(`${this.SALES_ENDPOINT}/${id}`, token, saleData);
-      return response;
+      const response = await http.put(`${this.SALES_ENDPOINT}/${id}`, saleData);
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;
@@ -186,9 +168,9 @@ export class SalesService {
   }
 
   // Excluir venda
-  static async deleteSale(id: string, token: string) {
+  static async deleteSale(id: string) {
     try {
-      await api.authDelete(`${this.SALES_ENDPOINT}/${id}`, token);
+      await http.delete(`${this.SALES_ENDPOINT}/${id}`);
       return true;
     } catch (error) {
       if (error instanceof Error) {
@@ -202,15 +184,13 @@ export class SalesService {
   static async paySale(
     id: string,
     paymentData: { paymentMethod: string; paymentDate: string },
-    token: string,
   ): Promise<SaleWithItems> {
     try {
-      const response = await api.authPatch<SaleWithItems>(
+      const response = await http.patch<SaleWithItems>(
         `${this.SALES_ENDPOINT}/${id}/pay`,
-        token,
         paymentData,
       );
-      return response;
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw error;

@@ -2,7 +2,6 @@ import { MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/reac
 import { useEffect, useState } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
 import { ProductsService, type Product } from '../../services/products.service';
-import { getAuthToken } from '../../utils/auth';
 
 interface ProductSelectorProps {
   isOpen: boolean;
@@ -38,12 +37,9 @@ const ProductSelector = ({
       // Buscar informações completas dos produtos
       const loadProductDetails = async () => {
         try {
-          const token = getAuthToken();
-          if (!token) return;
-
           const productPromises = currentItems.map(async (item) => {
             try {
-              const product = await ProductsService.getProductById(item.productId, token);
+              const product = await ProductsService.getProductById(item.productId);
               return {
                 productId: item.productId,
                 quantity: item.quantity,
@@ -89,18 +85,12 @@ const ProductSelector = ({
 
       setLoading(true);
       try {
-        const token = getAuthToken();
-        if (!token) return;
-
-        const response = await ProductsService.getProducts(
-          {
-            page: currentPage,
-            perPage: 20,
-            q: debouncedSearchTerm || undefined,
-            isActive: true,
-          },
-          token,
-        );
+        const response = await ProductsService.getProducts({
+          page: currentPage,
+          perPage: 20,
+          q: debouncedSearchTerm || undefined,
+          isActive: true,
+        });
 
         setProducts(response.items);
         setTotalPages(response.totalPages);

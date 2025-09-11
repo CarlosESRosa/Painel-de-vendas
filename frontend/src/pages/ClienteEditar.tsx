@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ClientForm from '../components/forms/ClientForm';
 import { ClientsService, type Client, type CreateClientData } from '../services/clients.service';
-import { getAuthToken } from '../utils/auth';
 
 const FIELDS = {
   personal: [
@@ -38,10 +37,8 @@ const ClienteEditar = () => {
       try {
         setLoading(true);
         setError('');
-        const token = getAuthToken();
-        if (!token) throw new Error('Token não encontrado');
         if (!id) throw new Error('ID do cliente não informado');
-        const data = await ClientsService.getClientById(id, token);
+        const data = await ClientsService.getClientById(id);
         setClient(data);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Erro ao carregar cliente');
@@ -78,9 +75,7 @@ const ClienteEditar = () => {
       setSaving(true);
       setError('');
       setSuccess('');
-      const token = getAuthToken();
-      if (!token) throw new Error('Token não encontrado');
-      const updated = await ClientsService.updateClient(client.id, data, token);
+      const updated = await ClientsService.updateClient(client.id, data);
       setClient(updated);
       setSuccess('Cliente atualizado com sucesso.');
       setEditing(false);

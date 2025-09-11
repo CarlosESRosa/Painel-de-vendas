@@ -21,7 +21,6 @@ import DatePicker from '../components/ui/DatePicker';
 import Tabs from '../components/ui/Tabs';
 import { SalesService } from '../services/sales.service';
 import type { Sale } from '../types/sales.types';
-import { getAuthToken } from '../utils/auth';
 
 /* -------------------------------- Helpers -------------------------------- */
 
@@ -229,9 +228,6 @@ const Dashboard = () => {
 
   const loadStatusCounts = useCallback(async (range: DateRange) => {
     try {
-      const token = getAuthToken();
-      if (!token) return;
-
       // Ensure dates are properly formatted for backend
       const params = {
         startDate: range?.start,
@@ -239,7 +235,7 @@ const Dashboard = () => {
       };
 
       console.log('Dashboard - Loading status counts with params:', params);
-      const counts = await SalesService.getStatusCounts(params, token);
+      const counts = await SalesService.getStatusCounts(params);
       console.log('Dashboard - Status counts response:', counts);
       setStatusCounts(counts);
     } catch (error) {
@@ -253,8 +249,6 @@ const Dashboard = () => {
       try {
         setLoading(true);
         setError('');
-        const token = getAuthToken();
-        if (!token) throw new Error('Token não encontrado');
 
         const perPage = 100;
         let page = 1;
@@ -272,7 +266,7 @@ const Dashboard = () => {
           };
 
           console.log(`Dashboard - Loading sales page ${page} with query:`, query);
-          const res = await SalesService.getSales(query, token);
+          const res = await SalesService.getSales(query);
           console.log(`Dashboard - Sales page ${page} response:`, {
             itemsCount: res.items.length,
             totalPages: res.totalPages,

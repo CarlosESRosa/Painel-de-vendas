@@ -1,5 +1,5 @@
+import { http } from '../api/http';
 import type { Seller } from '../types/sellers.types';
-import { api } from './api';
 
 export interface CreateSellerData {
   name: string;
@@ -11,7 +11,7 @@ export interface CreateSellerData {
 export class SellersService {
   private static readonly SELLERS_ENDPOINT = '/sellers'; // ajuste se seu backend usar outro path
 
-  static async createSeller(data: CreateSellerData, token: string): Promise<Seller> {
+  static async createSeller(data: CreateSellerData): Promise<Seller> {
     try {
       const clean = {
         name: data.name,
@@ -19,26 +19,25 @@ export class SellersService {
         password: 'temp123', // Backend requires password, will be hashed
         commissionPercent: '0.05', // Default commission
       };
-      return await api.authPost<Seller>(this.SELLERS_ENDPOINT, token, clean);
+      const response = await http.post<Seller>(this.SELLERS_ENDPOINT, clean);
+      return response.data;
     } catch (e) {
       if (e instanceof Error) throw e;
       throw new Error('Erro ao criar vendedor');
     }
   }
 
-  static async getSellerById(id: string, token: string): Promise<Seller> {
+  static async getSellerById(id: string): Promise<Seller> {
     try {
-      return await api.authGet<Seller>(`${this.SELLERS_ENDPOINT}/${id}`, token);
+      const response = await http.get<Seller>(`${this.SELLERS_ENDPOINT}/${id}`);
+      return response.data;
     } catch (e) {
       if (e instanceof Error) throw e;
       throw new Error('Erro ao carregar vendedor');
     }
   }
 
-  static async getSellers(
-    query: { page?: number; perPage?: number; q?: string },
-    token: string,
-  ): Promise<{
+  static async getSellers(query: { page?: number; perPage?: number; q?: string }): Promise<{
     items: Seller[];
     page: number;
     perPage: number;
@@ -50,24 +49,22 @@ export class SellersService {
       if (query.page) params.append('page', String(query.page));
       if (query.perPage) params.append('perPage', String(query.perPage));
       if (query.q) params.append('q', query.q);
-      return await api.authGet(`${this.SELLERS_ENDPOINT}?${params.toString()}`, token);
+      const response = await http.get(`${this.SELLERS_ENDPOINT}?${params.toString()}`);
+      return response.data;
     } catch (e) {
       if (e instanceof Error) throw e;
       throw new Error('Erro ao listar vendedores');
     }
   }
 
-  static async updateSeller(
-    id: string,
-    data: Partial<CreateSellerData>,
-    token: string,
-  ): Promise<Seller> {
+  static async updateSeller(id: string, data: Partial<CreateSellerData>): Promise<Seller> {
     try {
       const clean: { name?: string; email?: string; password?: string } = {};
       if (data.name) clean.name = data.name;
       if (data.email) clean.email = data.email;
 
-      return await api.authPatch<Seller>(`${this.SELLERS_ENDPOINT}/${id}`, token, clean);
+      const response = await http.patch<Seller>(`${this.SELLERS_ENDPOINT}/${id}`, clean);
+      return response.data;
     } catch (e) {
       if (e instanceof Error) throw e;
       throw new Error('Erro ao atualizar vendedor');

@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import VendorForm, { type VendorFormData } from '../components/forms/VendorForm';
 import { SellersService } from '../services/sellers.service';
 import type { Seller } from '../types/sellers.types';
-import { getAuthToken } from '../utils/auth';
 
 const FIELDS = [
   { key: 'name', label: 'Nome completo' },
@@ -27,10 +26,8 @@ const VendedorEditar = () => {
       try {
         setLoading(true);
         setError('');
-        const token = getAuthToken();
-        if (!token) throw new Error('Token não encontrado');
         if (!id) throw new Error('ID do vendedor não informado');
-        const data = await SellersService.getSellerById(id, token);
+        const data = await SellersService.getSellerById(id);
         setSeller(data);
       } catch (err) {
         if (err instanceof Error) {
@@ -62,9 +59,7 @@ const VendedorEditar = () => {
     try {
       setError('');
       setSuccess('');
-      const token = getAuthToken();
-      if (!token) throw new Error('Token não encontrado');
-      const updated = await SellersService.updateSeller(seller.id, data, token);
+      const updated = await SellersService.updateSeller(seller.id, data);
       setSeller(updated);
       setSuccess('Vendedor atualizado com sucesso.');
       setEditing(false);

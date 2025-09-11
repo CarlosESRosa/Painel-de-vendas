@@ -6,7 +6,6 @@ import Table from '../components/ui/Table';
 import { useDebounce } from '../hooks/useDebounce';
 import { SellersService } from '../services/sellers.service';
 import type { Seller, SellersFilters, SellersQuery } from '../types/sellers.types';
-import { getAuthToken } from '../utils/auth';
 
 const Vendedores = () => {
   const navigate = useNavigate();
@@ -79,16 +78,13 @@ const Vendedores = () => {
       setLoading(true);
       setError('');
 
-      const token = getAuthToken();
-      if (!token) throw new Error('Token não encontrado');
-
       const query: SellersQuery = {
         page: f.page,
         perPage: f.perPage,
         q: f.search || undefined,
       };
 
-      const res = await SellersService.getSellers(query, token);
+      const res = await SellersService.getSellers(query);
 
       // Ensure we have a valid response with items array
       if (res && Array.isArray(res.items)) {

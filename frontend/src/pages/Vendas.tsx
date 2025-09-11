@@ -14,7 +14,6 @@ import {
   PAYMENT_STATUS_COLORS,
   PAYMENT_STATUS_LABELS,
 } from '../types/sales.types';
-import { getAuthToken } from '../utils/auth';
 
 const Vendas = () => {
   const navigate = useNavigate();
@@ -157,11 +156,6 @@ const Vendas = () => {
       setLoading(true);
       setError('');
 
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error('Token não encontrado');
-      }
-
       const query: SalesQuery = {
         page: queryFilters.page,
         perPage: queryFilters.perPage,
@@ -173,7 +167,7 @@ const Vendas = () => {
       };
 
       console.log('Vendas - Loading sales with query:', query);
-      const response = await SalesService.getSales(query, token);
+      const response = await SalesService.getSales(query);
       console.log('Vendas - Sales response:', {
         itemsCount: response.items.length,
         total: response.total,
@@ -197,9 +191,6 @@ const Vendas = () => {
 
   // Carregar contadores de status baseado nos filtros atuais (precisos)
   const loadStatusCounts = useCallback(async (queryFilters?: SalesFilters) => {
-    const token = getAuthToken();
-    if (!token) return;
-
     try {
       // Usar o endpoint específico para contadores (sem paginação)
       const query = {
@@ -209,7 +200,7 @@ const Vendas = () => {
       };
 
       console.log('Vendas - Loading status counts with query:', query);
-      const counts = await SalesService.getStatusCounts(query, token);
+      const counts = await SalesService.getStatusCounts(query);
       console.log('Vendas - Status counts response:', counts);
 
       setStatusCounts(counts);
